@@ -36,6 +36,10 @@
         #map, #seminar-map { flex: 1; width: 100%; position: relative; z-index: 1; background: #1a1a1a; }
 
         .map-layer-toggle { position: absolute; top: 15px; left: 15px; z-index: 1000; background: rgba(26, 26, 26, 0.9); color: var(--primary); border: 1px solid var(--primary); padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        
+        /* NEU: Locate Button CSS */
+        .locate-btn { position: absolute; top: 65px; right: 15px; z-index: 1000; background: rgba(26, 26, 26, 0.9); color: var(--primary); border: 1px solid var(--primary); padding: 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.5); }
+        
         .weather-badge { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(26, 26, 26, 0.9); color: var(--primary); border: 1px solid var(--primary); padding: 8px 12px; border-radius: 20px; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; font-weight: bold;}
         .wind-arrow { display: inline-block; font-size: 1.1rem; transition: transform 0.5s ease; color: var(--text-main); }
         .map-overlay { position: absolute; bottom: 185px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(26, 26, 26, 0.95); border: 1px solid var(--primary); padding: 8px 18px; border-radius: 25px; display: flex; gap: 15px; align-items: center; font-size: 0.9rem; font-weight: bold; color: var(--primary); width: max-content; }
@@ -49,7 +53,7 @@
         .reset-btn { background-color: transparent; color: #d32f2f; border: 2px solid #d32f2f; }
         .active-stop { background-color: #d32f2f !important; color: white !important; border-color: #d32f2f !important; }
 
-        .svg-icon { width: 22px; height: 22px; fill: currentColor; }
+        .svg-icon { width: 22px; height: 22px; fill: currentColor; transition: fill 0.3s; }
         .svg-icon-nav { width: 26px; height: 26px; fill: currentColor; display: block; margin: 0 auto 4px auto; }
 
         .card { background-color: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 4px solid var(--primary); }
@@ -93,8 +97,15 @@
 
     <div id="view-map" class="view">
         <div id="map"></div>
+        
         <button class="map-layer-toggle" onclick="toggleMapLayer()"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/></svg><span id="layer-label">Satellit</span></button>
         <div class="weather-badge" id="weather-badge"><span id="temp-display">--°C</span><span class="wind-arrow" id="wind-arrow">↑</span><span id="wind-display">-- km/h</span></div>
+        
+        <!-- NEU: Fadenkreuz-Shortcut zur Lokalisierung -->
+        <button class="locate-btn" onclick="forceLocate()" title="Standort zentrieren">
+            <svg id="locate-icon" class="svg-icon" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+        </button>
+
         <div class="map-overlay" id="stats-overlay" style="display: none;">
             <div><svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg> <span id="dist-display">0 m</span></div>
             <div><svg class="svg-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> <span id="time-display">00:00</span></div>
@@ -154,7 +165,7 @@
         <div class="nav-item" id="nav-seminars" onclick="switchView('seminars', 'Fährtenseminare', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Seminare</div>
         <div class="nav-item" id="nav-history" onclick="switchView('history', 'Erledigte Fährten', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Historie</div>
     </div>
-      <script>
+        <script>
         let map = null, seminarMap = null;
         let trackingMapInitialized = false, seminarMapInitialized = false;
         let currentLayer = 'satellite', streetLayer, satelliteLayer;
@@ -162,10 +173,45 @@
         let polylineLegen, polylineSuchen;
         let weatherInfo = { temp: '--', windSpeed: '--', windDeg: 0 };
         
+        function updateUserMarker(coords) {
+            lastKnownCoords = coords;
+            if (!map) return;
+            
+            if (!userLocationMarker) {
+                userLocationMarker = L.circleMarker(coords, { radius: 7, fillColor: "#FF9800", color: "#ffffff", weight: 2, opacity: 1, fillOpacity: 1, zIndexOffset: 1000 }).addTo(map);
+            } else {
+                userLocationMarker.setLatLng(coords);
+                if (!map.hasLayer(userLocationMarker)) { userLocationMarker.addTo(map); }
+            }
+        }
+
+        // --- NEU: ZENTRIER-FUNKTION (Fadenkreuz) ---
+        function forceLocate() {
+            if (!navigator.geolocation) return alert("GPS wird nicht unterstützt.");
+            
+            const icon = document.getElementById('locate-icon');
+            icon.style.fill = "#ffffff"; // Leuchtet kurz auf
+            
+            navigator.geolocation.getCurrentPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                updateUserMarker([lat, lng]);
+                
+                if(map) {
+                    map.flyTo([lat, lng], 18, { animate: true, duration: 1 });
+                }
+                
+                if (weatherInfo.temp === '--') fetchWeather(lat, lng);
+                setTimeout(() => icon.style.fill = "currentColor", 1000);
+            }, err => {
+                alert("Standort nicht gefunden. Bitte prüfen, ob GPS aktiv ist.");
+                icon.style.fill = "currentColor";
+            }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+        }
+
         if(navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
-                lastKnownCoords = [pos.coords.latitude, pos.coords.longitude];
-                if(userLocationMarker) userLocationMarker.setLatLng(lastKnownCoords);
+                updateUserMarker([pos.coords.latitude, pos.coords.longitude]);
                 if (weatherInfo.temp === '--') fetchWeather(pos.coords.latitude, pos.coords.longitude);
             }, () => {}, { enableHighAccuracy: true });
         }
@@ -181,7 +227,7 @@
 
             if(viewName === 'map') {
                 if(!trackingMapInitialized) { initTrackingMap(); trackingMapInitialized = true; }
-                else { setTimeout(() => map.invalidateSize(), 100); }
+                else { setTimeout(() => { map.invalidateSize(); if(lastKnownCoords) map.panTo(lastKnownCoords); }, 100); }
             }
             if(viewName === 'seminars') {
                 if(!seminarMapInitialized) { initSeminarMap(); seminarMapInitialized = true; }
@@ -193,17 +239,21 @@
         function switchNav(viewName, title) { switchView(viewName, title, document.getElementById('nav-' + viewName)); }
 
         function initTrackingMap() {
-            let startCoords = lastKnownCoords || [51.165, 10.451];
-            map = L.map('map', { zoomControl: false }).setView(startCoords, lastKnownCoords ? 18 : 6);
+            let startCoords = lastKnownCoords || [50.209, 6.981]; 
+            map = L.map('map', { zoomControl: false }).setView(startCoords, lastKnownCoords ? 18 : 13);
+            map.attributionControl.setPrefix(''); 
+
             streetLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '© Google Maps' });
             satelliteLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '© Google Maps' }).addTo(map); 
             polylineLegen = L.polyline([], { color: '#FF9800', weight: 5, smoothFactor: 1 }).addTo(map);
             polylineSuchen = L.polyline([], { color: '#ffffff', weight: 5, dashArray: '10, 10', smoothFactor: 1 }).addTo(map);
-            if(lastKnownCoords) userLocationMarker = L.circleMarker(lastKnownCoords, { radius: 7, fillColor: "#FF9800", color: "#ffffff", weight: 2, opacity: 1, fillOpacity: 1 }).addTo(map);
+            
+            if(lastKnownCoords) updateUserMarker(lastKnownCoords);
         }
 
         function initSeminarMap() {
             seminarMap = L.map('seminar-map', { zoomControl: false }).setView([51.165, 10.451], 6);
+            seminarMap.attributionControl.setPrefix('');
             L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '© Google Maps' }).addTo(seminarMap);
             const seminarIcon = L.divIcon({ className: 'custom-seminar', html: '<svg viewBox="0 0 24 24" fill="#FF9800" stroke="#000" stroke-width="1"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>', iconSize: [36, 36], iconAnchor: [18, 36], popupAnchor: [0, -36] });
             L.marker([50.1109, 8.6821], {icon: seminarIcon}).addTo(seminarMap).bindPopup("<b>Fährtenhund Seminar (Frankfurt)</b><br><a href='#' style='color:#FF9800;'>Zur Facebook Gruppe</a>");
@@ -250,7 +300,8 @@
                 const acc = Math.round(pos.coords.accuracy);
                 document.getElementById('calib-accuracy').innerText = `${acc} m`;
                 
-                if (acc <= 8) forceStartTracking();
+                updateUserMarker([pos.coords.latitude, pos.coords.longitude]);
+                if (acc <= 15) forceStartTracking();
             }, err => { document.getElementById('calib-accuracy').innerText = "Fehler"; }, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
         }
 
@@ -291,11 +342,10 @@
             watchId = navigator.geolocation.watchPosition(pos => {
                 const lat = pos.coords.latitude, lng = pos.coords.longitude, acc = pos.coords.accuracy; 
                 
-                if(mode === 'legen' && positionsLegen.length > 0 && acc > 15) return;
-                if(mode === 'suchen' && positionsSuchen.length > 0 && acc > 15) return;
+                if(mode === 'legen' && positionsLegen.length > 0 && acc > 20) return;
+                if(mode === 'suchen' && positionsSuchen.length > 0 && acc > 20) return;
 
-                lastKnownCoords = [lat, lng]; 
-                if(userLocationMarker) userLocationMarker.setLatLng(lastKnownCoords);
+                updateUserMarker([lat, lng]);
                 
                 if (mode === 'legen') {
                     if (positionsLegen.length > 0) distLegen += calculateDistance(positionsLegen[positionsLegen.length-1][0], positionsLegen[positionsLegen.length-1][1], lat, lng);
