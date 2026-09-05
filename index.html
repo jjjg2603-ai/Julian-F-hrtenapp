@@ -180,6 +180,15 @@
             <p style="color: var(--text-muted); font-size: 0.9rem;">Noch keine Fährten aufgezeichnet.</p>
         </div>
     </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" id="nav-start" onclick="switchView('start', 'Start', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Start</div>
+        <div class="nav-item" id="nav-map" onclick="switchView('map', 'Neue Fährte', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg> Track</div>
+        <div class="nav-item" id="nav-details" onclick="switchView('details', 'Einstellungen', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg> Setup</div>
+        <div class="nav-item" id="nav-seminars" onclick="switchView('seminars', 'Fährtenseminare', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Seminare</div>
+        <div class="nav-item" id="nav-history" onclick="switchView('history', 'Erledigte Fährten', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Historie</div>
+    </div>
+
     <script>
         let map = null, seminarMap = null;
         let trackingMapInitialized = false, seminarMapInitialized = false;
@@ -240,7 +249,7 @@
                 updateUserMarker([lat, lng]);
                 
                 if(map) { map.flyTo([lat, lng], 18, { animate: true, duration: 1 }); }
-                if (weatherInfo.temp === '--') fetchWeather(lat, lng);
+                fetchWeather(lat, lng); // manueller Klick -> Wetter immer neu abrufen (nicht nur einmalig)
                 setTimeout(() => icon.style.fill = "currentColor", 1000);
             }, err => {
                 alert("Standort nicht gefunden. Bitte prüfen, ob GPS aktiv ist.");
@@ -318,7 +327,8 @@
             const marker = L.marker(lastKnownCoords, { icon: L.divIcon({ className: 'custom-item-marker', html: itemsCount, iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(map);
             itemMarkers.push(lastKnownCoords); updateDetailStats();
         }
-                function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371e3, p1 = lat1 * Math.PI/180, p2 = lat2 * Math.PI/180, dp = (lat2-lat1) * Math.PI/180, dl = (lon2-lon1) * Math.PI/180, a = Math.sin(dp/2) * Math.sin(dp/2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl/2) * Math.sin(dl/2); return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371e3, p1 = lat1 * Math.PI/180, p2 = lat2 * Math.PI/180, dp = (lat2-lat1) * Math.PI/180, dl = (lon2-lon1) * Math.PI/180, a = Math.sin(dp/2) * Math.sin(dp/2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl/2) * Math.sin(dl/2); return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); }
 
         let watchId = null, currentMode = null, positionsLegen = [], positionsSuchen = [], distLegen = 0, distSuchen = 0, startTime = null, timerInterval = null, formattedTime = "00:00";
         function updateDetailStats() { document.getElementById('detail-stats').value = `${distLegen.toFixed(0)} m / ${formattedTime} (${itemsCount} Gegenstände)`; }
@@ -333,13 +343,21 @@
             pendingMode = mode;
             document.getElementById('calib-modal').style.display = 'flex';
             document.getElementById('calib-accuracy').innerText = "Berechne...";
-            
-            calibWatchId = navigator.geolocation.watchPosition(pos => {
+
+            const handleCalibPosition = pos => {
                 const acc = Math.round(pos.coords.accuracy);
                 document.getElementById('calib-accuracy').innerText = `${acc} m`;
                 updateUserMarker([pos.coords.latitude, pos.coords.longitude]);
                 if (acc <= 15) forceStartTracking();
-            }, err => { document.getElementById('calib-accuracy').innerText = "Fehler"; }, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
+            };
+            const handleCalibError = () => { document.getElementById('calib-accuracy').innerText = "Fehler"; };
+
+            // Sofortige Einzelmessung: watchPosition liefert erst bei einer neuen
+            // Positionsänderung ein Ergebnis, daher zusätzlich hier eine schnelle
+            // Erstmessung anfordern, damit die Anzeige nicht bei "Berechne..." hängen bleibt.
+            navigator.geolocation.getCurrentPosition(handleCalibPosition, handleCalibError, { enableHighAccuracy: true, maximumAge: 5000, timeout: 5000 });
+
+            calibWatchId = navigator.geolocation.watchPosition(handleCalibPosition, handleCalibError, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
         }
 
         function cancelCalibration() {
@@ -462,6 +480,20 @@
             alert("Fährte gespeichert!");
             document.getElementById('eval-good').value = ""; 
             document.getElementById('eval-bad').value = "";
+
+            // Für die nächste Fährte: gespeicherte Session-Daten zurücksetzen,
+            // damit "Details" nicht noch die Werte der vorherigen Fährte zeigt.
+            positionsLegen = []; positionsSuchen = []; distLegen = 0; distSuchen = 0;
+            itemsCount = 0; itemMarkers = [];
+            formattedTime = "00:00";
+            document.getElementById('detail-stats').value = "0 m / 00:00 (0 Gegenstände)";
+            document.getElementById('liegezeit-display').innerText = "00:00:00";
+            if (liegezeitInterval) { clearInterval(liegezeitInterval); liegezeitInterval = null; }
+
+            // Fährtennamen für die nächste Runde hochzählen (z.B. "Fährte 1" -> "Fährte 2").
+            const nameField = document.getElementById('track-name');
+            const match = nameField.value.match(/^(.*?)(\d+)(\D*)$/);
+            nameField.value = match ? `${match[1]}${parseInt(match[2], 10) + 1}${match[3]}` : nameField.value;
         }
 
         function loadHistory() {
