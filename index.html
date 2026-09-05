@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        :root { --bg-color: #121212; --card-bg: #1e1e1e; --primary: #7CB342; --text-main: #ffffff; --text-muted: #aaaaaa; --accent-orange: #FF9800; }
+        :root { --bg-color: #121212; --card-bg: #1e1e1e; --primary: #7CB342; --secondary: #2196F3; --text-main: #ffffff; --text-muted: #aaaaaa; --accent-orange: #FF9800; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
@@ -30,186 +30,12 @@
         .map-layer-toggle { position: absolute; top: 15px; left: 15px; z-index: 1000; background: rgba(30, 30, 30, 0.85); color: #fff; border: 1px solid #444; padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; gap: 6px; cursor: pointer; }
         .weather-badge { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(30, 30, 30, 0.85); color: #fff; border: 1px solid #444; padding: 8px 12px; border-radius: 20px; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; }
         .wind-arrow { display: inline-block; font-size: 1.1rem; transition: transform 0.5s ease; }
-        .map-overlay { position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(30, 30, 30, 0.9); padding: 8px 18px; border-radius: 25px; display: flex; gap: 15px; align-items: center; font-size: 0.9rem; font-weight: 500; width: max-content; }
+        .map-overlay { position: absolute; bottom: 135px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(30, 30, 30, 0.9); padding: 8px 18px; border-radius: 25px; display: flex; gap: 15px; align-items: center; font-size: 0.9rem; font-weight: 500; width: max-content; }
         
         /* Action Bar (Start & Gegenstand) */
-        .action-bar { position: absolute; bottom: 20px; left: 0; width: 100%; display: flex; justify-content: center; gap: 12px; z-index: 1000; padding: 0 15px; }
-        .tracking-btn { background-color: var(--primary); color: white; border: none; padding: 14px 20px; border-radius: 30px; font-size: 1rem; font-weight: bold; flex: 2; max-width: 200px; }
-        .tracking-btn.active { background-color: #d32f2f; }
-        .item-btn { background-color: var(--accent-orange); color: white; border: none; padding: 14px 16px; border-radius: 30px; font-size: 0.9rem; font-weight: bold; flex: 1; max-width: 130px; }
-
-        /* Formulare & Listen */
-        .card { background-color: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; }
-        .input-group { margin-bottom: 14px; }
-        .input-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
-        .input-group input, .input-group textarea, .input-group select { width: 100%; background: transparent; border: none; border-bottom: 1px solid #444; color: var(--text-main); padding: 8px 0; font-size: 1rem; outline: none; }
-        .input-group input:focus { border-bottom-color: var(--primary); }
-        .btn-small { background-color: #333; color: white; border: 1px solid #555; padding: 10px 15px; border-radius: 8px; margin-top: 5px; width: 100%; font-size: 0.9rem; }
-        .history-item { background: #262626; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--primary); }
-        .history-title { font-weight: bold; margin-bottom: 4px; font-size: 1rem; }
-        .history-details { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
-
-        /* Bottom Nav */
-        .bottom-nav { background-color: var(--card-bg); display: flex; justify-content: space-around; padding: 10px 0 20px 0; border-top: 1px solid #2a2a2a; z-index: 10; }
-        .nav-item { color: var(--text-muted); text-align: center; font-size: 0.75rem; cursor: pointer; flex: 1; }
-        .nav-item.active { color: var(--primary); }
-        .nav-icon { font-size: 1.4rem; display: block; margin-bottom: 2px; }
-        .custom-item-marker { background-color: var(--accent-orange); color: black; border: 2px solid white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-    </style>
-</head>
-<body>
-
-    <header>
-        <span id="header-title">GPS-Tracking</span>
-        <button class="save-btn" onclick="saveTrack()" style="display: none;" id="header-save-btn">Speichern</button>
-    </header>
-
-    <div id="view-map" class="view active">
-        <div id="map"></div>
-        <button class="map-layer-toggle" onclick="toggleMapLayer()"><span id="layer-icon">🛰️</span> <span id="layer-label">Satellit</span></button>
-        <div class="weather-badge" id="weather-badge"><span id="temp-display">--°C</span><span class="wind-arrow" id="wind-arrow">↑</span><span id="wind-display">-- km/h</span></div>
-        <div class="map-overlay" id="stats-overlay" style="display: none;"><div id="dist-display">0 m</div><div>⏱️ <span id="time-display">00:00</span></div><div>📦 <span id="items-count-display">0</span></div></div>
-        <div class="action-bar"><button id="track-btn" class="tracking-btn">Fährte starten</button><button id="add-item-btn" class="item-btn" onclick="addCurrentItem()">+ Gegenstand</button></div>
-    </div>
-
-    <div id="view-details" class="view">
-        <div class="card"><div class="input-group"><label>Fährtenname</label><input type="text" id="track-name" value="Fährte 1"></div><div class="input-group"><label>Länge, Dauer & Gegenstände</label><input type="text" id="detail-stats" value="0 m / 00:00 (0 Gegenstände)" readonly></div></div>
-        <div class="card"><div class="input-group"><label>Liegezeit (Seit Legen der Fährte)</label><div style="font-size: 1.3rem; font-weight: bold; margin: 8px 0; color: var(--primary);" id="liegezeit-display">00:00:00</div><button class="btn-small" onclick="startLiegezeit()">Fährte jetzt gelegt (Start)</button></div></div>
-        <div class="card"><div class="input-group"><label>Gegenstände dokumentieren / fotografieren</label><input type="file" accept="image/*" capture="environment" multiple style="border: none; padding: 5px 0;"></div></div>
-        <div class="card"><div class="input-group"><label>Persönliche Notizen</label><textarea id="track-notes" rows="3" placeholder="Wie lief die Ausarbeitung der Winkel?"></textarea></div></div>
-    </div>
-
-    <div id="view-surface" class="view">
-        <div class="card"><div class="input-group"><label>Bodenbeschaffenheit</label><select id="track-surface"><option>Wiese</option><option>Acker / Saatfeld</option><option>Wald / Waldboden</option><option>Schotter / Weg</option><option>Hohes Gras</option></select></div><div class="input-group"><label>Bedingungen</label><select id="track-condition"><option>Trocken</option><option>Feucht / Tau</option><option>Nass / Regen</option><option>Frost / Schnee</option></select></div></div>
-    </div>
-
-    <div id="view-history" class="view">
-        <div class="card"><h3 style="margin-bottom: 12px; font-size: 1.1rem;">Gespeicherte Fährten</h3><div id="history-list"><p style="color: var(--text-muted); font-size: 0.9rem;">Noch keine Fährten aufgezeichnet.</p></div></div>
-    </div>
-
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchView('map', 'GPS-Tracking', this)"><span class="nav-icon">🗺️</span> Karte</div>
-        <div class="nav-item" onclick="switchView('details', 'Trainingsdaten', this)"><span class="nav-icon">📄</span> Details</div>
-        <div class="nav-item" onclick="switchView('surface', 'Beschaffenheit', this)"><span class="nav-icon">🐾</span> Boden</div>
-        <div class="nav-item" onclick="switchView('history', 'Historie', this)"><span class="nav-icon">🗃️</span> Historie</div>
-    </div>
-
-    <script>
-        function switchView(viewName, title, element) {
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + viewName).classList.add('active');
-            element.classList.add('active');
-            document.getElementById('header-title').innerText = title;
-            document.getElementById('header-save-btn').style.display = (viewName === 'details') ? 'block' : 'none';
-            if(viewName === 'map' && map) setTimeout(() => map.invalidateSize(), 100);
-            if(viewName === 'history') loadHistory();
-        }
-
-        let map, polyline, currentLayer = 'satellite', streetLayer, satelliteLayer, lastKnownCoords = null;
-
-        function initMap() {
-            map = L.map('map', { zoomControl: false }).setView([51.165, 10.451], 6);
-            streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
-            satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }).addTo(map); 
-            polyline = L.polyline([], { color: '#7CB342', weight: 5, smoothFactor: 1 }).addTo(map);
-            map.locate({ setView: true, maxZoom: 17, enableHighAccuracy: true });
-            map.on('locationfound', (e) => {
-                lastKnownCoords = [e.latitude, e.longitude];
-                fetchWeather(e.latitude, e.longitude);
-            });
-        }
-
-        function toggleMapLayer() {
-            if (currentLayer === 'satellite') {
-                map.removeLayer(satelliteLayer); streetLayer.addTo(map); currentLayer = 'street';
-                document.getElementById('layer-icon').innerText = '🗺️'; document.getElementById('layer-label').innerText = 'Karte';
-            } else {
-                map.removeLayer(streetLayer); satelliteLayer.addTo(map); currentLayer = 'satellite';
-                document.getElementById('layer-icon').innerText = '🛰️'; document.getElementById('layer-label').innerText = 'Satellit';
-            }
-        }
-
-        let weatherInfo = { temp: '--', windSpeed: '--', windDeg: 0 };
-        function fetchWeather(lat, lng) {
-            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m,wind_direction_10m`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.current) {
-                        weatherInfo = { temp: Math.round(data.current.temperature_2m), windSpeed: Math.round(data.current.wind_speed_10m), windDeg: data.current.wind_direction_10m };
-                        document.getElementById('temp-display').innerText = `${weatherInfo.temp}°C`;
-                        document.getElementById('wind-display').innerText = `${weatherInfo.windSpeed} km/h`;
-                        document.getElementById('wind-arrow').style.transform = `rotate(${weatherInfo.windDeg}deg)`;
-                    }
-                }).catch(() => {});
-        }
-
-        let itemMarkers = [], itemsCount = 0;
-        function addCurrentItem() {
-            if (!lastKnownCoords) { alert("Warte auf GPS-Signal..."); return; }
-            itemsCount++; document.getElementById('items-count-display').innerText = itemsCount;
-            const itemIcon = L.divIcon({ className: 'custom-item-marker', html: itemsCount, iconSize: [24, 24], iconAnchor: [12, 12] });
-            const marker = L.marker(lastKnownCoords, { icon: itemIcon }).addTo(map);
-            marker.bindPopup(`<b>Gegenstand ${itemsCount}</b>`).openPopup();
-            itemMarkers.push(lastKnownCoords);
-            updateDetailStats();
-        }
-
-        let watchId = null, positions = [], totalDistance = 0, startTime = null, timerInterval = null, formattedTime = "00:00";
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3, p1 = lat1 * Math.PI/180, p2 = lat2 * Math.PI/180, dp = (lat2-lat1) * Math.PI/180, dl = (lon2-lon1) * Math.PI/180;
-            const a = Math.sin(dp/2) * Math.sin(dp/2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl/2) * Math.sin(dl/2);
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        }
-        function updateDetailStats() { document.getElementById('detail-stats').value = `${totalDistance.toFixed(0)} m / ${formattedTime} (${itemsCount} Gegenstände)`; }
-
-        document.getElementById('track-btn').addEventListener('click', () => {
-            const btn = document.getElementById('track-btn');
-            if (!watchId) {
-                if (!navigator.geolocation) return alert("GPS nicht verfügbar.");
-                btn.innerText = "Fährte stoppen"; btn.classList.add('active');
-                document.getElementById('stats-overlay').style.display = 'flex';
-                positions = []; totalDistance = 0; itemsCount = 0; document.getElementById('items-count-display').innerText = '0';
-                polyline.setLatLngs([]); map.eachLayer(l => { if (l instanceof L.Marker) map.removeLayer(l); }); itemMarkers = [];
-                startTime = Date.now();
-                timerInterval = setInterval(() => {
-                    const sec = Math.floor((Date.now() - startTime) / 1000), m = String(Math.floor(sec / 60)).padStart(2, '0'), s = String(sec % 60).padStart(2, '0');
-                    formattedTime = `${m}:${s}`; document.getElementById('time-display').innerText = formattedTime; updateDetailStats();
-                }, 1000);
-                watchId = navigator.geolocation.watchPosition(pos => {
-                    const lat = pos.coords.latitude, lng = pos.coords.longitude; lastKnownCoords = [lat, lng];
-                    if (positions.length > 0) totalDistance += calculateDistance(positions[positions.length-1][0], positions[positions.length-1][1], lat, lng);
-                    positions.push(lastKnownCoords); polyline.addLatLng(lastKnownCoords); map.panTo(lastKnownCoords);
-                    document.getElementById('dist-display').innerText = `${totalDistance.toFixed(0)} m`; updateDetailStats();
-                }, () => {}, { enableHighAccuracy: true, maximumAge: 1000 });
-            } else {
-                btn.innerText = "Fährte starten"; btn.classList.remove('active');
-                navigator.geolocation.clearWatch(watchId); clearInterval(timerInterval); watchId = null;
-            }
-        });
-
-        let liegezeitStart = null, liegezeitInterval = null;
-        function startLiegezeit() {
-            liegezeitStart = Date.now(); if(liegezeitInterval) clearInterval(liegezeitInterval);
-            liegezeitInterval = setInterval(() => {
-                const diff = Math.floor((Date.now() - liegezeitStart) / 1000), h = String(Math.floor(diff / 3600)).padStart(2, '0'), m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0'), s = String(diff % 60).padStart(2, '0');
-                document.getElementById('liegezeit-display').innerText = `${h}:${m}:${s}`;
-            }, 1000);
-        }
-
-        function saveTrack() {
-            let history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [];
-            history.unshift({ name: document.getElementById('track-name').value, stats: document.getElementById('detail-stats').value, surface: document.getElementById('track-surface').value, weather: `${weatherInfo.temp}°C | Wind: ${weatherInfo.windSpeed} km/h`, date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }) });
-            localStorage.setItem('faehrtenHistory', JSON.stringify(history)); alert("Fährte gespeichert!");
-        }
-
-        function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [], list = document.getElementById('history-list');
-            if(history.length === 0) { list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Noch keine Fährten.</p>'; return; }
-            list.innerHTML = ''; history.forEach(t => list.innerHTML += `<div class="history-item"><div class="history-title">${t.name}</div><div class="history-details">🗓️ ${t.date} | 📏 ${t.stats}</div><div class="history-details">🐾 ${t.surface} | 🌤️ ${t.weather}</div></div>`);
-        }
-
-        window.onload = () => { initMap(); setTimeout(() => map.invalidateSize(), 500); };
-    </script>
-</body>
-</html>
+        .action-bar { position: absolute; bottom: 20px; left: 0; width: 100%; display: flex; flex-direction: column; gap: 8px; z-index: 1000; padding: 0 15px; }
+        .action-row { display: flex; gap: 8px; justify-content: center; width: 100%; }
+        
+        .tracking-btn { background-color: var(--primary); color: white; border: none; padding: 12px 15px; border-radius: 25px; font-size: 0.95rem; font-weight: bold; flex: 1; text-align: center; }
+        .search-btn { background-color: var(--secondary); color: white; border: none; padding: 12px 15px; border-radius: 25px
+                     
