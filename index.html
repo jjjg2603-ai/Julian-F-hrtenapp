@@ -12,182 +12,97 @@
         :root {
             --bg-color: #121212;
             --card-bg: #1e1e1e;
-            --primary: #7CB342; /* Das Grün aus den Screenshots */
+            --primary: #7CB342;
             --text-main: #ffffff;
             --text-muted: #aaaaaa;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        header { background-color: var(--card-bg); padding: 15px; text-align: center; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;}
+        
+        .save-btn { background-color: var(--primary); color: white; border: none; padding: 5px 15px; border-radius: 15px; font-weight: bold; }
+        
+        .view { display: none; flex: 1; overflow-y: auto; padding: 15px; }
+        .view.active { display: flex; flex-direction: column; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        header {
-            background-color: var(--card-bg);
-            padding: 15px;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-bottom: 1px solid #333;
-        }
-
-        .view {
-            display: none;
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-        }
-
-        .view.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Karten Ansicht */
+        /* Karte */
         #map-view { padding: 0; position: relative; }
         #map { height: 100%; width: 100%; }
         
-        .map-overlay {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            background: var(--card-bg);
-            padding: 15px 25px;
-            border-radius: 30px;
-            display: flex;
-            gap: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            align-items: center;
-        }
+        .map-overlay { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; background: var(--card-bg); padding: 10px 20px; border-radius: 30px; display: flex; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); align-items: center; }
+        .tracking-btn { background-color: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.1rem; font-weight: bold; position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 1000; cursor: pointer; }
+        .tracking-btn.active { background-color: #d32f2f; }
 
-        .tracking-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin: 20px auto;
-            display: block;
-            cursor: pointer;
-        }
+        /* Karten (Cards) */
+        .card { background-color: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
+        .input-group input, .input-group textarea, .input-group select { width: 100%; background: transparent; border: none; border-bottom: 1px solid #444; color: var(--text-main); padding: 8px 0; font-size: 1rem; outline: none; }
+        .input-group input:focus { border-bottom-color: var(--primary); }
+        
+        .btn-small { background-color: #333; color: white; border: 1px solid #555; padding: 8px 15px; border-radius: 5px; margin-top: 5px; width: 100%; }
 
-        .tracking-btn.active {
-            background-color: #d32f2f; /* Rot für Stopp */
-        }
+        /* Historie Liste */
+        .history-item { background: #2a2a2a; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--primary); }
+        .history-title { font-weight: bold; margin-bottom: 5px; }
+        .history-details { font-size: 0.85rem; color: var(--text-muted); }
 
-        /* Formulare & Listen (Details, Untergrund, Einstellungen) */
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-
-        .input-group input, .input-group textarea, .input-group select {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid #444;
-            color: var(--text-main);
-            padding: 8px 0;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .input-group input:focus {
-            border-bottom-color: var(--primary);
-        }
-
-        /* Bottom Navigation */
-        .bottom-nav {
-            background-color: var(--card-bg);
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0 20px 0;
-            border-top: 1px solid #333;
-        }
-
-        .nav-item {
-            color: var(--text-muted);
-            text-align: center;
-            font-size: 0.8rem;
-            cursor: pointer;
-            flex: 1;
-        }
-
-        .nav-item.active {
-            color: var(--primary);
-        }
-
-        .nav-icon {
-            font-size: 1.5rem;
-            display: block;
-            margin-bottom: 3px;
-        }
+        /* Bottom Nav */
+        .bottom-nav { background-color: var(--card-bg); display: flex; justify-content: space-around; padding: 10px 0 20px 0; border-top: 1px solid #333; }
+        .nav-item { color: var(--text-muted); text-align: center; font-size: 0.75rem; cursor: pointer; flex: 1; }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 1.4rem; display: block; margin-bottom: 3px; }
     </style>
 </head>
 <body>
 
-    <header id="header-title">GPS-Tracking</header>
+    <header>
+        <span id="header-title">GPS-Tracking</span>
+        <button class="save-btn" onclick="saveTrack()" style="display: none;" id="header-save-btn">Speichern</button>
+    </header>
 
     <div id="view-map" class="view active">
         <div id="map"></div>
         <div class="map-overlay" id="stats-overlay" style="display: none;">
-            <div id="dist-display">0.00 m</div>
+            <div id="dist-display">0 m</div>
             <div id="time-display">00:00</div>
         </div>
-        <button id="track-btn" class="tracking-btn" style="position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 1000;">Fährte aufnehmen</button>
+        <button id="track-btn" class="tracking-btn">Fährte aufnehmen</button>
     </div>
 
     <div id="view-details" class="view">
         <div class="card">
             <div class="input-group">
                 <label>Fährtenname</label>
-                <input type="text" value="Anfängerfährte">
+                <input type="text" id="track-name" value="Anfängerfährte">
             </div>
             <div class="input-group">
-                <label>Ort</label>
-                <input type="text" placeholder="Ort eingeben">
-            </div>
-            <div class="input-group">
-                <label>Länge (wird automatisch berechnet)</label>
-                <input type="text" id="detail-length" value="0 m" readonly>
-            </div>
-            <div class="input-group">
-                <label>Anzahl Gegenstände</label>
-                <input type="number" value="3">
+                <label>Länge & Dauer</label>
+                <input type="text" id="detail-stats" value="0 m / 00:00" readonly>
             </div>
         </div>
+        
+        <div class="card">
+            <div class="input-group">
+                <label>Liegezeit (Wie lange liegt die Fährte schon?)</label>
+                <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;" id="liegezeit-display">00:00:00</div>
+                <button class="btn-small" onclick="startLiegezeit()">Fährte jetzt gelegt (Start)</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="input-group">
+                <label>Gegenstände fotografieren</label>
+                <input type="file" accept="image/*" capture="environment" multiple style="border: none;">
+                <small style="color: var(--text-muted); font-size: 0.7rem;">(Fotos bleiben nur lokal auf dem Handy)</small>
+            </div>
+        </div>
+
         <div class="card">
             <div class="input-group">
                 <label>Persönliche Notizen</label>
-                <textarea rows="3" placeholder="Notizen zur Fährte..."></textarea>
+                <textarea id="track-notes" rows="3" placeholder="Notizen zur Fährte..."></textarea>
             </div>
         </div>
     </div>
@@ -196,189 +111,163 @@
         <div class="card">
             <div class="input-group">
                 <label>Bodenbeschaffenheit</label>
-                <select>
+                <select id="track-surface">
                     <option>Wiese</option>
                     <option>Wald</option>
                     <option>Straße</option>
-                    <option>Hohes Gras</option>
                     <option>Saatfeld</option>
-                </select>
-            </div>
-        </div>
-        <div class="card">
-            <div class="input-group">
-                <label>Bedingungen</label>
-                <select>
-                    <option>Trocken</option>
-                    <option>Nass</option>
-                    <option>Schnee</option>
-                    <option>Unbekannt</option>
                 </select>
             </div>
         </div>
     </div>
 
-    <div id="view-settings" class="view">
+    <div id="view-history" class="view">
         <div class="card">
-            <div class="input-group">
-                <label>Kartentyp</label>
-                <select id="map-type">
-                    <option value="street">Standard</option>
-                    <option value="topo">Topografisch</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Maßeinheit</label>
-                <select>
-                    <option>Metrisch (Meter)</option>
-                </select>
+            <h3 style="margin-bottom: 10px;">Gespeicherte Fährten</h3>
+            <div id="history-list">
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Noch keine Fährten gespeichert.</p>
             </div>
         </div>
     </div>
 
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchView('map', 'GPS-Tracking', this)">
-            <span class="nav-icon">🗺️</span>
-            Karte
+            <span class="nav-icon">🗺️</span> Karte
         </div>
         <div class="nav-item" onclick="switchView('details', 'Trainingsdaten', this)">
-            <span class="nav-icon">📄</span>
-            Details
+            <span class="nav-icon">📄</span> Details
         </div>
         <div class="nav-item" onclick="switchView('surface', 'Beschaffenheit', this)">
-            <span class="nav-icon">🐾</span>
-            Untergrund
+            <span class="nav-icon">🐾</span> Boden
         </div>
-        <div class="nav-item" onclick="switchView('settings', 'Einstellungen', this)">
-            <span class="nav-icon">⚙️</span>
-            Einstellungen
+        <div class="nav-item" onclick="switchView('history', 'Historie', this)">
+            <span class="nav-icon">🗃️</span> Historie
         </div>
     </div>
 
     <script>
-        // UI Logik: Zwischen Ansichten wechseln
+        // UI Navigation
         function switchView(viewName, title, element) {
             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
             document.getElementById('view-' + viewName).classList.add('active');
             element.classList.add('active');
             document.getElementById('header-title').innerText = title;
 
-            // Karte neu ausrichten, wenn sie eingeblendet wird
-            if(viewName === 'map' && map) {
-                setTimeout(() => map.invalidateSize(), 100);
-            }
+            // Speichern-Button nur in Details anzeigen
+            document.getElementById('header-save-btn').style.display = (viewName === 'details') ? 'block' : 'none';
+
+            if(viewName === 'map' && map) setTimeout(() => map.invalidateSize(), 100);
+            if(viewName === 'history') loadHistory();
         }
 
-        // GPS und Karten Logik
-        let map, polyline;
-        let watchId = null;
-        let positions = [];
-        let totalDistance = 0; // in Metern
-        let startTime = null;
-        let timerInterval = null;
+        // --- LIEGEZEIT LOGIK ---
+        let liegezeitStart = null;
+        let liegezeitInterval = null;
 
-        // Karte initialisieren
+        function startLiegezeit() {
+            liegezeitStart = Date.now();
+            if(liegezeitInterval) clearInterval(liegezeitInterval);
+            
+            liegezeitInterval = setInterval(() => {
+                const diff = Math.floor((Date.now() - liegezeitStart) / 1000);
+                const h = String(Math.floor(diff / 3600)).padStart(2, '0');
+                const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+                const s = String(diff % 60).padStart(2, '0');
+                document.getElementById('liegezeit-display').innerText = `${h}:${m}:${s}`;
+            }, 1000);
+        }
+
+        // --- HISTORIE & SPEICHERN LOGIK ---
+        function saveTrack() {
+            const trackData = {
+                name: document.getElementById('track-name').value,
+                stats: document.getElementById('detail-stats').value,
+                surface: document.getElementById('track-surface').value,
+                date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' })
+            };
+
+            let history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [];
+            history.unshift(trackData); // Oben anfügen
+            localStorage.setItem('faehrtenHistory', JSON.stringify(history));
+            
+            alert("Fährte lokal gespeichert!");
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [];
+            const list = document.getElementById('history-list');
+            
+            if(history.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Noch keine Fährten gespeichert.</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+            history.forEach(track => {
+                list.innerHTML += `
+                    <div class="history-item">
+                        <div class="history-title">${track.name}</div>
+                        <div class="history-details">🗓️ ${track.date}</div>
+                        <div class="history-details">📏 ${track.stats} | 🐾 ${track.surface}</div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- GPS LOGIK ---
+        let map, polyline, watchId = null;
+        let positions = [], totalDistance = 0, startTime = null, timerInterval = null;
+
         function initMap() {
-            map = L.map('map').setView([51.165, 10.451], 6); // Startansicht Deutschland
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
-
+            map = L.map('map').setView([51.165, 10.451], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OS' }).addTo(map);
             polyline = L.polyline([], {color: '#7CB342', weight: 5}).addTo(map);
-            
-            // Eigenen Standort suchen
             map.locate({setView: true, maxZoom: 16});
         }
 
-        // Haversine-Formel zur Distanzberechnung zwischen zwei Koordinaten
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // Erdradius in Metern
-            const p1 = lat1 * Math.PI/180;
-            const p2 = lat2 * Math.PI/180;
-            const dp = (lat2-lat1) * Math.PI/180;
-            const dl = (lon2-lon1) * Math.PI/180;
-
-            const a = Math.sin(dp/2) * Math.sin(dp/2) +
-                      Math.cos(p1) * Math.cos(p2) *
-                      Math.sin(dl/2) * Math.sin(dl/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
+            const R = 6371e3; const p1 = lat1 * Math.PI/180; const p2 = lat2 * Math.PI/180;
+            const dp = (lat2-lat1) * Math.PI/180; const dl = (lon2-lon1) * Math.PI/180;
+            const a = Math.sin(dp/2) * Math.sin(dp/2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl/2) * Math.sin(dl/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
-        // Timer formatieren
-        function formatTime(seconds) {
-            const h = Math.floor(seconds / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
-            const s = seconds % 60;
-            return [h, m > 9 ? m : h ? '0' + m : m || '0', s > 9 ? s : '0' + s].filter(Boolean).join(':');
-        }
-
-        // Tracking starten / stoppen
         const trackBtn = document.getElementById('track-btn');
-        const statsOverlay = document.getElementById('stats-overlay');
-        
         trackBtn.addEventListener('click', () => {
             if (!watchId) {
-                // STARTE TRACKING
-                if (!navigator.geolocation) {
-                    alert("GPS wird von deinem Browser nicht unterstützt.");
-                    return;
-                }
-                
+                if (!navigator.geolocation) { alert("GPS nicht unterstützt."); return; }
                 trackBtn.innerText = "Fährte stoppen";
                 trackBtn.classList.add('active');
-                statsOverlay.style.display = 'flex';
+                document.getElementById('stats-overlay').style.display = 'flex';
                 
-                positions = [];
-                totalDistance = 0;
-                polyline.setLatLngs([]);
-                startTime = Date.now();
+                positions = []; totalDistance = 0; polyline.setLatLngs([]); startTime = Date.now();
 
-                // Timer starten
                 timerInterval = setInterval(() => {
-                    const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-                    document.getElementById('time-display').innerText = formatTime(elapsedSeconds);
+                    const sec = Math.floor((Date.now() - startTime) / 1000);
+                    const m = String(Math.floor(sec / 60)).padStart(2, '0');
+                    const s = String(sec % 60).padStart(2, '0');
+                    const timeStr = `${m}:${s}`;
+                    document.getElementById('time-display').innerText = timeStr;
+                    document.getElementById('detail-stats').value = `${totalDistance.toFixed(0)} m / ${timeStr}`;
                 }, 1000);
 
-                // GPS Position kontinuierlich abfragen
                 watchId = navigator.geolocation.watchPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        const newPos = [lat, lng];
-                        
-                        if (positions.length > 0) {
-                            const lastPos = positions[positions.length - 1];
-                            totalDistance += calculateDistance(lastPos[0], lastPos[1], lat, lng);
-                        }
-                        
-                        positions.push(newPos);
-                        polyline.addLatLng(newPos);
-                        map.panTo(newPos);
-                        
-                        document.getElementById('dist-display').innerText = totalDistance.toFixed(2) + " m";
-                        document.getElementById('detail-length').value = totalDistance.toFixed(2) + " m";
+                    (pos) => {
+                        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+                        if (positions.length > 0) totalDistance += calculateDistance(positions[positions.length-1][0], positions[positions.length-1][1], lat, lng);
+                        positions.push([lat, lng]); polyline.addLatLng([lat, lng]); map.panTo([lat, lng]);
+                        document.getElementById('dist-display').innerText = totalDistance.toFixed(0) + " m";
                     },
-                    (error) => {
-                        console.error("GPS Fehler:", error);
-                    },
+                    (err) => console.error(err),
                     { enableHighAccuracy: true, maximumAge: 0 }
                 );
-
             } else {
-                // STOPPE TRACKING
-                trackBtn.innerText = "Fährte aufnehmen";
-                trackBtn.classList.remove('active');
-                navigator.geolocation.clearWatch(watchId);
-                clearInterval(timerInterval);
-                watchId = null;
+                trackBtn.innerText = "Fährte aufnehmen"; trackBtn.classList.remove('active');
+                navigator.geolocation.clearWatch(watchId); clearInterval(timerInterval); watchId = null;
             }
         });
 
-        // Beim Start Karte laden
         window.onload = initMap;
     </script>
 </body>
