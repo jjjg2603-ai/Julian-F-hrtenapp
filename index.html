@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <title>On Track</title>
+    <title>Fährten Tracker</title>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0d0d0d">
@@ -17,10 +17,12 @@
 
     <style>
         :root { --bg-color: #0d0d0d; --card-bg: #1a1a1a; --primary: #FF9800; --secondary: #FFB74D; --text-main: #ffffff; --text-muted: #aaaaaa; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
         
-        header { background-color: var(--card-bg); padding: 14px 18px; text-align: center; font-size: 1.1rem; font-weight: bold; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;}
+        html { height: -webkit-fill-available; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; height: 100dvh; min-height: -webkit-fill-available; overflow: hidden; }
+        
+        header { background-color: var(--card-bg); padding: 14px 18px; text-align: center; font-size: 1.1rem; font-weight: bold; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;}
         .save-btn { background-color: var(--primary); color: #000; border: none; padding: 6px 14px; border-radius: 14px; font-weight: bold; font-size: 0.9rem; }
         
         .view { display: none; flex: 1; overflow-y: auto; padding: 15px; position: relative; }
@@ -32,7 +34,6 @@
         
         .btn-large { background-color: var(--primary); color: #000; border: none; padding: 16px; border-radius: 12px; font-size: 1.1rem; font-weight: bold; width: 100%; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); cursor: pointer; }
         .btn-outline { background-color: transparent; color: var(--primary); border: 2px solid var(--primary); }
-        .social-links { display: flex; justify-content: center; gap: 20px; margin-top: auto; padding-top: 20px; }
 
         #view-map.active, #view-seminars.active { padding: 0; display: flex; flex-direction: column; }
         #map, #seminar-map { flex: 1; width: 100%; position: relative; z-index: 1; background: #1a1a1a; }
@@ -74,7 +75,7 @@
         .modal-content h3 { margin-bottom: 15px; color: var(--primary); text-align: center; }
         .modal-content p { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; }
         
-        .bottom-nav { background-color: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0 25px 0; border-top: 1px solid #222; z-index: 10; }
+        .bottom-nav { background-color: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0 calc(15px + env(safe-area-inset-bottom)) 0; border-top: 1px solid #222; z-index: 10000; flex-shrink: 0; width: 100%; }
         .nav-item { color: var(--text-muted); text-align: center; font-size: 0.7rem; font-weight: bold; cursor: pointer; flex: 1; text-transform: uppercase; }
         .nav-item.active { color: var(--primary); }
         
@@ -90,17 +91,13 @@
 
     <div id="view-start" class="view active">
         <h1 class="start-header">FÄHRTEN TRACKER</h1>
-        
         <img src="https://i.imgur.com/OKx53As.jpeg" alt="Julian & Oscito" class="hero-image">
         
         <button class="btn-large" onclick="switchNav('map', 'Neue Fährte')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2L2 22l10-3 10 3L12 2z"/></svg>Neue Fährte starten</button>
         <button class="btn-large btn-outline" onclick="switchNav('history', 'Erledigte Fährten')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>Erledigte Fährten</button>
-        
-        <!-- NEU: Regelwerk Button -->
         <button class="btn-large btn-outline" onclick="openPOModal()"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>FCI Prüfungsordnung (2025)</button>
     </div>
 
-    <!-- PO Modal (Prüfungsordnung) -->
     <div id="po-modal" class="modal-overlay">
         <div class="modal-content" style="text-align: left;">
             <h3 style="margin-bottom: 15px; color: var(--primary); text-align: center;">FCI REGELWERK 2025</h3>
@@ -121,20 +118,14 @@
 
     <div id="view-map" class="view">
         <div id="map"></div>
-        
         <button class="map-layer-toggle" onclick="toggleMapLayer()"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/></svg><span id="layer-label">Satellit</span></button>
         <div class="weather-badge" id="weather-badge"><span id="temp-display">--°C</span><span class="wind-arrow" id="wind-arrow">↑</span><span id="wind-display">-- km/h</span></div>
-        
-        <button class="locate-btn" onclick="forceLocate()" title="Standort zentrieren">
-            <svg id="locate-icon" class="svg-icon" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-        </button>
-
+        <button class="locate-btn" onclick="forceLocate()" title="Standort zentrieren"><svg id="locate-icon" class="svg-icon" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg></button>
         <div class="map-overlay" id="stats-overlay" style="display: none;">
             <div><svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg> <span id="dist-display">0 m</span></div>
             <div><svg class="svg-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> <span id="time-display">00:00</span></div>
             <div><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2L2 22l10-3 10 3L12 2z"/></svg> <span id="items-count-display">0</span></div>
         </div>
-        
         <div class="action-bar">
             <div class="action-row">
                 <button id="track-btn" class="tracking-btn" onclick="startCalibration('legen')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Fährte legen</button>
@@ -164,9 +155,7 @@
         </div>
     </div>
 
-    <div id="view-seminars" class="view">
-        <div id="seminar-map"></div>
-    </div>
+    <div id="view-seminars" class="view"><div id="seminar-map"></div></div>
 
     <div id="view-details" class="view">
         <div class="card"><div class="input-group"><label>Fährtenname</label><input type="text" id="track-name" value="Fährte 1"></div><div class="input-group"><label>Länge & Dauer</label><input type="text" id="detail-stats" value="0 m / 00:00 (0 Gegenstände)" readonly></div></div>
@@ -176,9 +165,7 @@
 
     <div id="view-history" class="view">
         <h3 style="margin-bottom: 15px; font-size: 1.2rem; color: var(--primary); text-transform: uppercase;">Erledigte Fährten</h3>
-        <div id="history-list">
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Noch keine Fährten aufgezeichnet.</p>
-        </div>
+        <div id="history-list"><p style="color: var(--text-muted); font-size: 0.9rem;">Noch keine Fährten aufgezeichnet.</p></div>
     </div>
 
     <div class="bottom-nav">
@@ -188,8 +175,7 @@
         <div class="nav-item" id="nav-seminars" onclick="switchView('seminars', 'Fährtenseminare', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Seminare</div>
         <div class="nav-item" id="nav-history" onclick="switchView('history', 'Erledigte Fährten', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Historie</div>
     </div>
-
-    <script>
+        <script>
         let map = null, seminarMap = null;
         let trackingMapInitialized = false, seminarMapInitialized = false;
         let currentLayer = 'satellite', streetLayer, satelliteLayer;
@@ -207,54 +193,28 @@
             "IFH 3": { art: "Fremdfährte", schritte: "min. 1800", schenkel: 8, winkel: "7 (5x 90°, 2x spitz)", gegenstaende: "7 (Fremd) + 2 Verleitungen", alter: "180 Min.", zeit: "45 Min.", leine: "10 Meter" }
         };
 
-        function openPOModal() {
-            document.getElementById('po-modal').style.display = 'flex';
-            updatePODisplay();
-        }
-
+        function openPOModal() { document.getElementById('po-modal').style.display = 'flex'; updatePODisplay(); }
+        
         function updatePODisplay() {
-            const stufe = document.getElementById('po-select').value;
-            const d = poData[stufe];
-            document.getElementById('po-details').innerHTML = `
-                <div style="margin-bottom: 6px;"><b style="color:var(--primary);">Art:</b> ${d.art}</div>
-                <div style="margin-bottom: 6px;"><b style="color:var(--primary);">Länge:</b> ${d.schritte} Schritte</div>
-                <div style="margin-bottom: 6px;"><b style="color:var(--primary);">Schenkel & Winkel:</b> ${d.schenkel} Schenkel / ${d.winkel}</div>
-                <div style="margin-bottom: 6px;"><b style="color:var(--primary);">Gegenstände:</b> ${d.gegenstaende}</div>
-                <div style="margin-bottom: 6px;"><b style="color:var(--primary);">Liegezeit:</b> ${d.alter}</div>
-                <div style="margin-bottom: 6px;"><b style="color:var(--primary);">Ausarbeitungszeit:</b> ${d.zeit}</div>
-                <div style="margin-bottom: 6px;"><b style="color:var(--primary);">Fährtenleine:</b> ${d.leine}</div>
-            `;
+            const d = poData[document.getElementById('po-select').value];
+            document.getElementById('po-details').innerHTML = `<div style="margin-bottom: 6px;"><b style="color:var(--primary);">Art:</b> ${d.art}</div><div style="margin-bottom: 6px;"><b style="color:var(--primary);">Länge:</b> ${d.schritte} Schritte</div><div style="margin-bottom: 6px;"><b style="color:var(--primary);">Schenkel & Winkel:</b> ${d.schenkel} Schenkel / ${d.winkel}</div><div style="margin-bottom: 6px;"><b style="color:var(--primary);">Gegenstände:</b> ${d.gegenstaende}</div><div style="margin-bottom: 6px;"><b style="color:var(--primary);">Liegezeit:</b> ${d.alter}</div><div style="margin-bottom: 6px;"><b style="color:var(--primary);">Ausarbeitungszeit:</b> ${d.zeit}</div><div style="margin-bottom: 6px;"><b style="color:var(--primary);">Fährtenleine:</b> ${d.leine}</div>`;
         }
         
         function updateUserMarker(coords) {
             lastKnownCoords = coords;
             if (!map) return;
-            
-            if (!userLocationMarker) {
-                userLocationMarker = L.circleMarker(coords, { radius: 7, fillColor: "#FF9800", color: "#ffffff", weight: 2, opacity: 1, fillOpacity: 1, zIndexOffset: 1000 }).addTo(map);
-            } else {
-                userLocationMarker.setLatLng(coords);
-                if (!map.hasLayer(userLocationMarker)) { userLocationMarker.addTo(map); }
-            }
+            if (!userLocationMarker) { userLocationMarker = L.circleMarker(coords, { radius: 7, fillColor: "#FF9800", color: "#ffffff", weight: 2, opacity: 1, fillOpacity: 1, zIndexOffset: 1000 }).addTo(map); } 
+            else { userLocationMarker.setLatLng(coords); if (!map.hasLayer(userLocationMarker)) { userLocationMarker.addTo(map); } }
         }
 
         function forceLocate() {
             if (!navigator.geolocation) return alert("GPS wird nicht unterstützt.");
-            const icon = document.getElementById('locate-icon');
-            icon.style.fill = "#ffffff";
-            
+            const icon = document.getElementById('locate-icon'); icon.style.fill = "#ffffff";
             navigator.geolocation.getCurrentPosition(pos => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                updateUserMarker([lat, lng]);
-                
+                const lat = pos.coords.latitude, lng = pos.coords.longitude; updateUserMarker([lat, lng]);
                 if(map) { map.flyTo([lat, lng], 18, { animate: true, duration: 1 }); }
-                fetchWeather(lat, lng); // manueller Klick -> Wetter immer neu abrufen (nicht nur einmalig)
-                setTimeout(() => icon.style.fill = "currentColor", 1000);
-            }, err => {
-                alert("Standort nicht gefunden. Bitte prüfen, ob GPS aktiv ist.");
-                icon.style.fill = "currentColor";
-            }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+                if (weatherInfo.temp === '--') fetchWeather(lat, lng); setTimeout(() => icon.style.fill = "currentColor", 1000);
+            }, err => { alert("Standort nicht gefunden. Bitte prüfen, ob GPS aktiv ist."); icon.style.fill = "currentColor"; }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
         }
 
         if(navigator.geolocation) {
@@ -263,13 +223,11 @@
                 if (weatherInfo.temp === '--') fetchWeather(pos.coords.latitude, pos.coords.longitude);
             }, () => {}, { enableHighAccuracy: true });
         }
-
-        function switchView(viewName, title, element) {
+                    function switchView(viewName, title, element) {
             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('view-' + viewName).classList.add('active');
             if(element) element.classList.add('active');
-            
             document.getElementById('header-title').innerText = title;
             document.getElementById('header-save-btn').style.display = (viewName === 'details') ? 'block' : 'none';
 
@@ -290,22 +248,42 @@
             let startCoords = lastKnownCoords || [50.209, 6.981]; 
             map = L.map('map', { zoomControl: false }).setView(startCoords, lastKnownCoords ? 18 : 13);
             map.attributionControl.setPrefix(''); 
-
-            streetLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '© Google Maps' });
-            satelliteLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '© Google Maps' }).addTo(map); 
+            streetLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20 });
+            satelliteLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', { maxZoom: 20 }).addTo(map); 
             polylineLegen = L.polyline([], { color: '#FF9800', weight: 5, smoothFactor: 1 }).addTo(map);
             polylineSuchen = L.polyline([], { color: '#ffffff', weight: 5, dashArray: '10, 10', smoothFactor: 1 }).addTo(map);
-            
             if(lastKnownCoords) updateUserMarker(lastKnownCoords);
         }
 
         function initSeminarMap() {
             seminarMap = L.map('seminar-map', { zoomControl: false }).setView([51.165, 10.451], 6);
             seminarMap.attributionControl.setPrefix('');
-            L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '© Google Maps' }).addTo(seminarMap);
+            L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20 }).addTo(seminarMap);
             const seminarIcon = L.divIcon({ className: 'custom-seminar', html: '<svg viewBox="0 0 24 24" fill="#FF9800" stroke="#000" stroke-width="1"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>', iconSize: [36, 36], iconAnchor: [18, 36], popupAnchor: [0, -36] });
-            L.marker([50.1109, 8.6821], {icon: seminarIcon}).addTo(seminarMap).bindPopup("<b>Fährtenhund Seminar (Frankfurt)</b><br><a href='#' style='color:#FF9800;'>Zur Facebook Gruppe</a>");
-            L.marker([51.2277, 6.7735], {icon: seminarIcon}).addTo(seminarMap).bindPopup("<b>Intensiv-Mantrailing (Düsseldorf)</b><br><a href='#' style='color:#FF9800;'>Zur Facebook Gruppe</a>");
+
+            // HIER DEINEN KOPIERTEN GOOGLE SHEETS LINK EINTRAGEN:
+            const sheetUrl = "DEIN_LINK_HIER_EINFÜGEN";
+
+            if(sheetUrl.includes("http")) {
+                fetch(sheetUrl).then(res => res.text()).then(data => {
+                    const rows = data.split('\n').slice(1);
+                    rows.forEach((row, index) => {
+                        const cols = row.split('\t');
+                        if(cols.length >= 3) {
+                            const titel = cols[0].trim(), plz = cols[1].trim(), link = cols[2].trim();
+                            if(plz) {
+                                setTimeout(() => {
+                                    fetch(`https://nominatim.openstreetmap.org/search?postalcode=${plz}&countrycodes=de,at,ch&format=json`).then(res => res.json()).then(geoData => {
+                                        if(geoData && geoData.length > 0) {
+                                            L.marker([geoData[0].lat, geoData[0].lon], {icon: seminarIcon}).addTo(seminarMap).bindPopup(`<b>${titel}</b><br><span style="color:#aaa; font-size:0.85rem;">PLZ: ${plz}</span><br><a href="${link}" target="_blank" style="color:#FF9800; font-weight:bold;">Zum Seminar</a>`);
+                                        }
+                                    }).catch(e => console.log("PLZ Fehler:", e));
+                                }, index * 1100); 
+                            }
+                        }
+                    });
+                }).catch(e => console.log("Ladefehler:", e));
+            }
         }
 
         function toggleMapLayer() {
@@ -324,246 +302,7 @@
         function addCurrentItem() {
             if (!lastKnownCoords || !map) return alert("Warte auf GPS-Signal...");
             itemsCount++; document.getElementById('items-count-display').innerText = itemsCount;
-            const marker = L.marker(lastKnownCoords, { icon: L.divIcon({ className: 'custom-item-marker', html: itemsCount, iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(map);
+            L.marker(lastKnownCoords, { icon: L.divIcon({ className: 'custom-item-marker', html: itemsCount, iconSize: [26, 26], iconAnchor: [13, 13] }) }).addTo(map);
             itemMarkers.push(lastKnownCoords); updateDetailStats();
         }
-
-        function calculateDistance(lat1, lon1, lat2, lon2) { const R = 6371e3, p1 = lat1 * Math.PI/180, p2 = lat2 * Math.PI/180, dp = (lat2-lat1) * Math.PI/180, dl = (lon2-lon1) * Math.PI/180, a = Math.sin(dp/2) * Math.sin(dp/2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl/2) * Math.sin(dl/2); return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); }
-
-        let watchId = null, currentMode = null, positionsLegen = [], positionsSuchen = [], distLegen = 0, distSuchen = 0, startTime = null, timerInterval = null, formattedTime = "00:00";
-        function updateDetailStats() { document.getElementById('detail-stats').value = `${distLegen.toFixed(0)} m / ${formattedTime} (${itemsCount} Gegenstände)`; }
-
-        let calibWatchId = null;
-        let pendingMode = null;
-
-        function startCalibration(mode) {
-            if (watchId) return toggleTracking(mode); 
-            if (!navigator.geolocation) return alert("GPS nicht verfügbar.");
             
-            pendingMode = mode;
-            document.getElementById('calib-modal').style.display = 'flex';
-            document.getElementById('calib-accuracy').innerText = "Berechne...";
-
-            const handleCalibPosition = pos => {
-                const acc = Math.round(pos.coords.accuracy);
-                document.getElementById('calib-accuracy').innerText = `${acc} m`;
-                updateUserMarker([pos.coords.latitude, pos.coords.longitude]);
-                if (acc <= 15) forceStartTracking();
-            };
-            const handleCalibError = () => { document.getElementById('calib-accuracy').innerText = "Fehler"; };
-
-            // Sofortige Einzelmessung: watchPosition liefert erst bei einer neuen
-            // Positionsänderung ein Ergebnis, daher zusätzlich hier eine schnelle
-            // Erstmessung anfordern, damit die Anzeige nicht bei "Berechne..." hängen bleibt.
-            navigator.geolocation.getCurrentPosition(handleCalibPosition, handleCalibError, { enableHighAccuracy: true, maximumAge: 5000, timeout: 5000 });
-
-            calibWatchId = navigator.geolocation.watchPosition(handleCalibPosition, handleCalibError, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
-        }
-
-        function cancelCalibration() {
-            if (calibWatchId) navigator.geolocation.clearWatch(calibWatchId);
-            document.getElementById('calib-modal').style.display = 'none';
-        }
-
-        function forceStartTracking() {
-            if (calibWatchId) navigator.geolocation.clearWatch(calibWatchId);
-            document.getElementById('calib-modal').style.display = 'none';
-            executeTrackingStart(pendingMode);
-        }
-
-        function executeTrackingStart(mode) {
-            currentMode = mode; 
-            const btnLegen = document.getElementById('track-btn'), btnSuchen = document.getElementById('search-btn');
-            document.getElementById('stats-overlay').style.display = 'flex';
-            document.getElementById('reset-btn').style.display = 'flex';
-            startTime = Date.now(); formattedTime = "00:00";
-
-            if (mode === 'legen') {
-                btnLegen.innerHTML = `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg> Legen stoppen`; btnLegen.classList.add('active-stop'); btnSuchen.style.display = 'none';
-                positionsLegen = []; distLegen = 0; itemsCount = 0; document.getElementById('items-count-display').innerText = '0';
-                polylineLegen.setLatLngs([]); polylineSuchen.setLatLngs([]);
-                map.eachLayer(l => { if (l instanceof L.Marker && l !== userLocationMarker) map.removeLayer(l); }); itemMarkers = [];
-            } else if (mode === 'suchen') {
-                btnSuchen.innerHTML = `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg> Suchen stoppen`; btnSuchen.classList.add('active-stop'); btnSuchen.style.backgroundColor = '#d32f2f'; btnSuchen.style.color = '#fff'; btnLegen.style.display = 'none';
-                positionsSuchen = []; distSuchen = 0; polylineSuchen.setLatLngs([]);
-            }
-
-            timerInterval = setInterval(() => {
-                const sec = Math.floor((Date.now() - startTime) / 1000), m = String(Math.floor(sec / 60)).padStart(2, '0'), s = String(sec % 60).padStart(2, '0');
-                formattedTime = `${m}:${s}`; document.getElementById('time-display').innerText = formattedTime;
-                if(mode === 'legen') updateDetailStats();
-            }, 1000);
-
-            watchId = navigator.geolocation.watchPosition(pos => {
-                const lat = pos.coords.latitude, lng = pos.coords.longitude, acc = pos.coords.accuracy; 
-                
-                if(mode === 'legen' && positionsLegen.length > 0 && acc > 20) return;
-                if(mode === 'suchen' && positionsSuchen.length > 0 && acc > 20) return;
-
-                updateUserMarker([lat, lng]);
-                
-                if (mode === 'legen') {
-                    if (positionsLegen.length > 0) distLegen += calculateDistance(positionsLegen[positionsLegen.length-1][0], positionsLegen[positionsLegen.length-1][1], lat, lng);
-                    positionsLegen.push(lastKnownCoords); polylineLegen.addLatLng(lastKnownCoords); document.getElementById('dist-display').innerText = `${distLegen.toFixed(0)} m`; updateDetailStats();
-                } else {
-                    if (positionsSuchen.length > 0) distSuchen += calculateDistance(positionsSuchen[positionsSuchen.length-1][0], positionsSuchen[positionsSuchen.length-1][1], lat, lng);
-                    positionsSuchen.push(lastKnownCoords); polylineSuchen.addLatLng(lastKnownCoords); document.getElementById('dist-display').innerText = `${distSuchen.toFixed(0)} m (Hund)`;
-                }
-                map.panTo(lastKnownCoords);
-            }, () => {}, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
-        }
-
-        function toggleTracking(mode) {
-            navigator.geolocation.clearWatch(watchId); clearInterval(timerInterval); watchId = null;
-            const btnLegen = document.getElementById('track-btn'), btnSuchen = document.getElementById('search-btn');
-            
-            btnLegen.innerHTML = `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Fährte legen`; btnLegen.classList.remove('active-stop'); btnLegen.style.display = 'flex';
-            btnSuchen.innerHTML = `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Hund sucht`; btnSuchen.classList.remove('active-stop'); btnSuchen.style.backgroundColor = 'transparent'; btnSuchen.style.color = 'var(--primary)'; btnSuchen.style.display = 'flex';
-            document.getElementById('reset-btn').style.display = 'none';
-
-            if (currentMode === 'suchen') openEvalModal();
-            currentMode = null;
-        }
-
-        function resetTracking() {
-            if(confirm("Möchtest du diese Fährte wirklich abbrechen und löschen?")) {
-                if(watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; }
-                if(timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-                
-                positionsLegen = []; positionsSuchen = []; distLegen = 0; distSuchen = 0; itemsCount = 0;
-                polylineLegen.setLatLngs([]); polylineSuchen.setLatLngs([]);
-                map.eachLayer(l => { if (l instanceof L.Marker && l !== userLocationMarker) map.removeLayer(l); }); itemMarkers = [];
-                
-                document.getElementById('stats-overlay').style.display = 'none';
-                document.getElementById('items-count-display').innerText = '0';
-                document.getElementById('dist-display').innerText = '0 m';
-                document.getElementById('time-display').innerText = '00:00';
-                
-                const btnLegen = document.getElementById('track-btn'), btnSuchen = document.getElementById('search-btn');
-                btnLegen.innerHTML = `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Fährte legen`; btnLegen.classList.remove('active-stop'); btnLegen.style.display = 'flex';
-                btnSuchen.innerHTML = `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Hund sucht`; btnSuchen.classList.remove('active-stop'); btnSuchen.style.backgroundColor = 'transparent'; btnSuchen.style.color = 'var(--primary)'; btnSuchen.style.display = 'flex';
-                document.getElementById('reset-btn').style.display = 'none';
-                
-                currentMode = null;
-            }
-        }
-
-        let liegezeitStart = null, liegezeitInterval = null;
-        function startLiegezeit() {
-            liegezeitStart = Date.now(); if(liegezeitInterval) clearInterval(liegezeitInterval);
-            liegezeitInterval = setInterval(() => {
-                const diff = Math.floor((Date.now() - liegezeitStart) / 1000), h = String(Math.floor(diff / 3600)).padStart(2, '0'), m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0'), s = String(diff % 60).padStart(2, '0');
-                document.getElementById('liegezeit-display').innerText = `${h}:${m}:${s}`;
-            }, 1000);
-        }
-
-        function openEvalModal() { document.getElementById('eval-modal').style.display = 'flex'; }
-        
-        function saveTrack() {
-            document.getElementById('eval-modal').style.display = 'none'; 
-            let history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [];
-            
-            history.unshift({
-                name: document.getElementById('track-name').value, 
-                stats: document.getElementById('detail-stats').value, 
-                surface: document.getElementById('track-surface').value, 
-                weather: `${weatherInfo.temp}°C | Wind: ${weatherInfo.windSpeed} km/h`,
-                date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-                evalGood: document.getElementById('eval-good').value || "-", 
-                evalBad: document.getElementById('eval-bad').value || "-",
-                pathLegen: positionsLegen,
-                pathSuchen: positionsSuchen,
-                items: itemMarkers
-            });
-            
-            localStorage.setItem('faehrtenHistory', JSON.stringify(history)); 
-            alert("Fährte gespeichert!");
-            document.getElementById('eval-good').value = ""; 
-            document.getElementById('eval-bad').value = "";
-
-            // Für die nächste Fährte: gespeicherte Session-Daten zurücksetzen,
-            // damit "Details" nicht noch die Werte der vorherigen Fährte zeigt.
-            positionsLegen = []; positionsSuchen = []; distLegen = 0; distSuchen = 0;
-            itemsCount = 0; itemMarkers = [];
-            formattedTime = "00:00";
-            document.getElementById('detail-stats').value = "0 m / 00:00 (0 Gegenstände)";
-            document.getElementById('liegezeit-display').innerText = "00:00:00";
-            if (liegezeitInterval) { clearInterval(liegezeitInterval); liegezeitInterval = null; }
-
-            // Fährtennamen für die nächste Runde hochzählen (z.B. "Fährte 1" -> "Fährte 2").
-            const nameField = document.getElementById('track-name');
-            const match = nameField.value.match(/^(.*?)(\d+)(\D*)$/);
-            nameField.value = match ? `${match[1]}${parseInt(match[2], 10) + 1}${match[3]}` : nameField.value;
-        }
-
-        function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [];
-            const list = document.getElementById('history-list');
-            
-            historyMaps.forEach(m => m.remove());
-            historyMaps = [];
-
-            if(history.length === 0) { list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Noch keine Fährten.</p>'; return; }
-            list.innerHTML = ''; 
-            
-            history.forEach((t, index) => {
-                list.innerHTML += `
-                <div class="history-item">
-                    <div class="history-title">${t.name}</div>
-                    <div class="history-details"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ${t.date} | ${t.stats}</div>
-                    <div class="history-details"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.5 11L12 8l-2.5 3H11v4h2v-4h1.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> ${t.surface} | ${t.weather}</div>
-                    
-                    <div id="history-map-${index}" style="height: 160px; width: 100%; margin: 12px 0; border-radius: 8px; border: 1px solid #444; z-index: 1;"></div>
-
-                    <div class="history-eval">
-                        <b style="color:var(--primary);">Gut:</b> ${t.evalGood}<br>
-                        <b style="color:#d32f2f;">Schlecht:</b> ${t.evalBad}
-                    </div>
-                </div>`;
-            });
-
-            setTimeout(() => {
-                history.forEach((t, index) => {
-                    let mapContainer = document.getElementById(`history-map-${index}`);
-                    if (!mapContainer) return;
-
-                    let hMap = L.map(mapContainer, {
-                        zoomControl: false, dragging: false, touchZoom: false, 
-                        scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false
-                    });
-                    
-                    hMap.attributionControl.setPrefix('');
-                    L.tileLayer('https://mt1.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', { maxZoom: 20 }).addTo(hMap);
-
-                    let bounds = L.latLngBounds();
-
-                    if (t.pathLegen && t.pathLegen.length > 0) {
-                        L.polyline(t.pathLegen, { color: '#FF9800', weight: 4 }).addTo(hMap);
-                        t.pathLegen.forEach(coord => bounds.extend(coord));
-                    }
-
-                    if (t.pathSuchen && t.pathSuchen.length > 0) {
-                        L.polyline(t.pathSuchen, { color: '#ffffff', weight: 4, dashArray: '5, 5' }).addTo(hMap);
-                        t.pathSuchen.forEach(coord => bounds.extend(coord));
-                    }
-
-                    if (t.items && t.items.length > 0) {
-                        t.items.forEach((coord, i) => {
-                            L.marker(coord, { icon: L.divIcon({ className: 'custom-item-marker', html: i+1, iconSize: [22, 22], iconAnchor: [11, 11] }) }).addTo(hMap);
-                            bounds.extend(coord);
-                        });
-                    }
-
-                    if (bounds.isValid()) {
-                        hMap.fitBounds(bounds, { padding: [10, 10] });
-                    } else {
-                        hMap.setView([50.209, 6.981], 13); 
-                    }
-                    
-                    historyMaps.push(hMap);
-                });
-            }, 100);
-        }
-    </script>
-</body>
-</html>
