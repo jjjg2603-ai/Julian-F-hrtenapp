@@ -285,4 +285,41 @@
             const trackData = {
                 name: document.getElementById('track-name').value,
                 stats: document.getElementById('detail-stats').value,
-                surf
+                surface: document.getElementById('track-surface').value,
+                weather: `${weatherInfo.temp}°C | Wind: ${weatherInfo.windSpeed} km/h`,
+                date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
+                evalGood: document.getElementById('eval-good').value || "Keine Angabe",
+                evalBad: document.getElementById('eval-bad').value || "Keine Angabe"
+            };
+            
+            let history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [];
+            history.unshift(trackData);
+            localStorage.setItem('faehrtenHistory', JSON.stringify(history)); 
+            alert("Fährte & Auswertung gespeichert!");
+            
+            document.getElementById('eval-good').value = "";
+            document.getElementById('eval-bad').value = "";
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [], list = document.getElementById('history-list');
+            if(history.length === 0) { list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Noch keine Fährten.</p>'; return; }
+            list.innerHTML = ''; 
+            history.forEach(t => {
+                list.innerHTML += `
+                <div class="history-item">
+                    <div class="history-title">${t.name}</div>
+                    <div class="history-details">🗓️ ${t.date} | 📏 ${t.stats}</div>
+                    <div class="history-details">🐾 ${t.surface} | 🌤️ ${t.weather}</div>
+                    <div class="history-eval">
+                        <b>Gut:</b> ${t.evalGood}<br>
+                        <b style="color:#d32f2f;">Schlecht:</b> ${t.evalBad}
+                    </div>
+                </div>`;
+            });
+        }
+
+        window.onload = () => { initMap(); setTimeout(() => map.invalidateSize(), 500); };
+    </script>
+</body>
+</html>
