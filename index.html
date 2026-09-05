@@ -134,12 +134,16 @@
 
         let map, currentLayer = 'satellite', streetLayer, satelliteLayer, lastKnownCoords = null;
         let polylineLegen, polylineSuchen;
-        let userLocationMarker = null; // NEU: Der Live-Standort Marker
+        let userLocationMarker = null;
 
         function initMap() {
             map = L.map('map', { zoomControl: false }).setView([51.165, 10.451], 6);
-            streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
-            satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }).addTo(map); 
+            
+            // NEU: Google Maps Provider integriert!
+            // Google Maps Standard
+            streetLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20 });
+            // Google Maps Hybrid (Satellit + Beschriftungen)
+            satelliteLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', { maxZoom: 20 }).addTo(map); 
             
             polylineLegen = L.polyline([], { color: '#7CB342', weight: 5, smoothFactor: 1 }).addTo(map);
             polylineSuchen = L.polyline([], { color: '#2196F3', weight: 5, dashArray: '10, 10', smoothFactor: 1 }).addTo(map);
@@ -150,14 +154,12 @@
                 lastKnownCoords = [e.latitude, e.longitude];
                 updateUserMarker(lastKnownCoords);
                 
-                // Wetter nur einmalig beim ersten Fund laden, um Akku & Daten zu sparen
                 if (weatherInfo.temp === '--') {
                     fetchWeather(e.latitude, e.longitude);
                 }
             });
         }
 
-        // Aktualisiert den blauen Punkt
         function updateUserMarker(coords) {
             if (!userLocationMarker) {
                 userLocationMarker = L.circleMarker(coords, {
@@ -258,7 +260,7 @@
                 watchId = navigator.geolocation.watchPosition(pos => {
                     const lat = pos.coords.latitude, lng = pos.coords.longitude; lastKnownCoords = [lat, lng];
                     
-                    updateUserMarker(lastKnownCoords); // Blauen Punkt aktualisieren
+                    updateUserMarker(lastKnownCoords);
                     
                     if (mode === 'legen') {
                         if (positionsLegen.length > 0) distLegen += calculateDistance(positionsLegen[positionsLegen.length-1][0], positionsLegen[positionsLegen.length-1][1], lat, lng);
@@ -289,56 +291,4 @@
         function startLiegezeit() {
             liegezeitStart = Date.now(); if(liegezeitInterval) clearInterval(liegezeitInterval);
             liegezeitInterval = setInterval(() => {
-                const diff = Math.floor((Date.now() - liegezeitStart) / 1000), h = String(Math.floor(diff / 3600)).padStart(2, '0'), m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0'), s = String(diff % 60).padStart(2, '0');
-                document.getElementById('liegezeit-display').innerText = `${h}:${m}:${s}`;
-            }, 1000);
-        }
-
-        function openEvalModal() {
-            document.getElementById('eval-modal').style.display = 'flex';
-        }
-
-        function saveTrack() {
-            document.getElementById('eval-modal').style.display = 'none'; 
-            
-            const trackData = {
-                name: document.getElementById('track-name').value,
-                stats: document.getElementById('detail-stats').value,
-                surface: document.getElementById('track-surface').value,
-                weather: `${weatherInfo.temp}°C | Wind: ${weatherInfo.windSpeed} km/h`,
-                date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-                evalGood: document.getElementById('eval-good').value || "Keine Angabe",
-                evalBad: document.getElementById('eval-bad').value || "Keine Angabe"
-            };
-            
-            let history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [];
-            history.unshift(trackData);
-            localStorage.setItem('faehrtenHistory', JSON.stringify(history)); 
-            alert("Fährte & Auswertung gespeichert!");
-            
-            document.getElementById('eval-good').value = "";
-            document.getElementById('eval-bad').value = "";
-        }
-
-        function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [], list = document.getElementById('history-list');
-            if(history.length === 0) { list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Noch keine Fährten.</p>'; return; }
-            list.innerHTML = ''; 
-            history.forEach(t => {
-                list.innerHTML += `
-                <div class="history-item">
-                    <div class="history-title">${t.name}</div>
-                    <div class="history-details">🗓️ ${t.date} | 📏 ${t.stats}</div>
-                    <div class="history-details">🐾 ${t.surface} | 🌤️ ${t.weather}</div>
-                    <div class="history-eval">
-                        <b>Gut:</b> ${t.evalGood}<br>
-                        <b style="color:#d32f2f;">Schlecht:</b> ${t.evalBad}
-                    </div>
-                </div>`;
-            });
-        }
-
-        window.onload = () => { initMap(); setTimeout(() => map.invalidateSize(), 500); };
-    </script>
-</body>
-</html>
+                const diff = Math.floor((Date.now() - liegezeitStart) / 1000), h = String(Mat
