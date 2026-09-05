@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <title>Fährten Tracker</title>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,7 +16,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
-        /* DYNAMIX FARBSCHEMA: Schwarz & Orange */
         :root { 
             --bg-color: #0d0d0d; 
             --card-bg: #1a1a1a; 
@@ -23,7 +26,7 @@
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
         
         header { background-color: var(--card-bg); padding: 14px 18px; text-align: center; font-size: 1.1rem; font-weight: bold; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;}
         .save-btn { background-color: var(--primary); color: #000; border: none; padding: 6px 14px; border-radius: 14px; font-weight: bold; font-size: 0.9rem; }
@@ -42,11 +45,11 @@
         #view-map.active, #view-seminars.active { padding: 0; display: flex; flex-direction: column; }
         #map, #seminar-map { flex: 1; width: 100%; position: relative; z-index: 1; background: #1a1a1a; }
 
-        /* Overlays auf der Karte */
+        /* Overlays */
         .map-layer-toggle { position: absolute; top: 15px; left: 15px; z-index: 1000; background: rgba(26, 26, 26, 0.9); color: var(--primary); border: 1px solid var(--primary); padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer; }
         .weather-badge { position: absolute; top: 15px; right: 15px; z-index: 1000; background: rgba(26, 26, 26, 0.9); color: var(--primary); border: 1px solid var(--primary); padding: 8px 12px; border-radius: 20px; font-size: 0.8rem; display: flex; align-items: center; gap: 8px; font-weight: bold;}
         .wind-arrow { display: inline-block; font-size: 1.1rem; transition: transform 0.5s ease; color: var(--text-main); }
-        .map-overlay { position: absolute; bottom: 135px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(26, 26, 26, 0.95); border: 1px solid var(--primary); padding: 8px 18px; border-radius: 25px; display: flex; gap: 15px; align-items: center; font-size: 0.9rem; font-weight: bold; color: var(--primary); width: max-content; }
+        .map-overlay { position: absolute; bottom: 185px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(26, 26, 26, 0.95); border: 1px solid var(--primary); padding: 8px 18px; border-radius: 25px; display: flex; gap: 15px; align-items: center; font-size: 0.9rem; font-weight: bold; color: var(--primary); width: max-content; }
         
         /* Action Bar */
         .action-bar { position: absolute; bottom: 20px; left: 0; width: 100%; display: flex; flex-direction: column; gap: 8px; z-index: 1000; padding: 0 15px; }
@@ -55,6 +58,7 @@
         .tracking-btn { background-color: var(--primary); color: #000; border: none; padding: 14px 15px; border-radius: 12px; font-size: 0.95rem; font-weight: bold; flex: 1; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .search-btn { background-color: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 12px 15px; border-radius: 12px; font-size: 0.95rem; font-weight: bold; flex: 1; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .item-btn { background-color: var(--card-bg); color: var(--text-main); border: 1px solid #444; padding: 12px 15px; border-radius: 12px; font-size: 0.95rem; font-weight: bold; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .reset-btn { background-color: transparent; color: #d32f2f; border: 2px solid #d32f2f; }
         .active-stop { background-color: #d32f2f !important; color: white !important; border-color: #d32f2f !important; }
 
         /* Custom SVG Icons */
@@ -74,11 +78,12 @@
         .history-details { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
         .history-eval { background: #111; padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 3px solid var(--secondary); font-size: 0.85rem; }
 
-        /* Modal */
-        #eval-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; border: 1px solid var(--primary); }
-        .modal-content h3 { margin-bottom: 20px; color: var(--primary); text-align: center; }
-
+        /* Modals */
+        .modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; border: 1px solid var(--primary); text-align: center; }
+        .modal-content h3 { margin-bottom: 15px; color: var(--primary); text-align: center; }
+        .modal-content p { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; }
+        
         /* Bottom Nav */
         .bottom-nav { background-color: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0 25px 0; border-top: 1px solid #222; z-index: 10; }
         .nav-item { color: var(--text-muted); text-align: center; font-size: 0.7rem; font-weight: bold; cursor: pointer; flex: 1; text-transform: uppercase; }
@@ -98,46 +103,17 @@
     <!-- 0. STARTBILDSCHIRM -->
     <div id="view-start" class="view active">
         <h1 class="start-header">FÄHRTEN TRACKER</h1>
-        
         <img src="https://i.imgur.com/OKx53As.jpg" alt="Julian & Oscito" class="hero-image" onerror="this.src='https://i.imgur.com/OKx53As.jpeg'">
-
-        <button class="btn-large" onclick="switchNav('map', 'Neue Fährte')">
-            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2L2 22l10-3 10 3L12 2z"/></svg>
-            Neue Fährte starten
-        </button>
-        
-        <button class="btn-large btn-outline" onclick="switchNav('history', 'Erledigte Fährten')">
-            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-            Erledigte Fährten
-        </button>
-
-        <button class="btn-large btn-outline" onclick="switchNav('seminars', 'Fährtenseminare')">
-            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            Seminar Übersicht
-        </button>
-
-        <div class="social-links">
-            <a href="https://instagram.com/Doglife-Germany" target="_blank" style="color: var(--primary);">
-                <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.4 5.6 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.6 18.4 4 16.4 4H7.6m8.4 1.5c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10m0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
-            </a>
-            <a href="#" target="_blank" style="color: var(--primary);">
-                <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
-            </a>
-        </div>
+        <button class="btn-large" onclick="switchNav('map', 'Neue Fährte')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2L2 22l10-3 10 3L12 2z"/></svg>Neue Fährte starten</button>
+        <button class="btn-large btn-outline" onclick="switchNav('history', 'Erledigte Fährten')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>Erledigte Fährten</button>
+        <button class="btn-large btn-outline" onclick="switchNav('seminars', 'Fährtenseminare')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Seminar Übersicht</button>
     </div>
 
     <!-- 1. KARTEN ANSICHT -->
     <div id="view-map" class="view">
         <div id="map"></div>
-        <button class="map-layer-toggle" onclick="toggleMapLayer()">
-            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/></svg> 
-            <span id="layer-label">Satellit</span>
-        </button>
-        <div class="weather-badge" id="weather-badge">
-            <span id="temp-display">--°C</span>
-            <span class="wind-arrow" id="wind-arrow">↑</span>
-            <span id="wind-display">-- km/h</span>
-        </div>
+        <button class="map-layer-toggle" onclick="toggleMapLayer()"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/></svg><span id="layer-label">Satellit</span></button>
+        <div class="weather-badge" id="weather-badge"><span id="temp-display">--°C</span><span class="wind-arrow" id="wind-arrow">↑</span><span id="wind-display">-- km/h</span></div>
         <div class="map-overlay" id="stats-overlay" style="display: none;">
             <div><svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg> <span id="dist-display">0 m</span></div>
             <div><svg class="svg-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> <span id="time-display">00:00</span></div>
@@ -146,32 +122,31 @@
         
         <div class="action-bar">
             <div class="action-row">
-                <button id="track-btn" class="tracking-btn" onclick="toggleTracking('legen')">
-                    <svg class="svg-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Fährte legen
-                </button>
-                <button id="search-btn" class="search-btn" onclick="toggleTracking('suchen')">
-                    <svg class="svg-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Hund sucht
-                </button>
+                <button id="track-btn" class="tracking-btn" onclick="startCalibration('legen')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Fährte legen</button>
+                <button id="search-btn" class="search-btn" onclick="startCalibration('suchen')"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Hund sucht</button>
             </div>
-            <button id="add-item-btn" class="item-btn" onclick="addCurrentItem()">
-                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 9h-2V7h-2v5H6v2h2v5h2v-5h2v-2z"/></svg> Gegenstand markieren
-            </button>
+            <button id="add-item-btn" class="item-btn" onclick="addCurrentItem()"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 9h-2V7h-2v5H6v2h2v5h2v-5h2v-2z"/></svg> Gegenstand markieren</button>
+            <button id="reset-btn" class="item-btn reset-btn" style="display: none;" onclick="resetTracking()"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg> Fährte verwerfen & Neu</button>
         </div>
 
-        <div id="eval-modal">
+        <!-- Kalibrierungs-Modal -->
+        <div id="calib-modal" class="modal-overlay">
             <div class="modal-content">
+                <h3>GPS KALIBRIERUNG</h3>
+                <p id="calib-status-text">Suche präzises Signal...</p>
+                <div style="font-size: 2rem; font-weight: bold; color: var(--primary); margin-bottom: 20px;" id="calib-accuracy">-- m</div>
+                <button class="tracking-btn" style="width: 100%; margin-bottom: 10px;" onclick="forceStartTracking()">Trotzdem starten</button>
+                <button class="item-btn" onclick="cancelCalibration()">Abbrechen</button>
+            </div>
+        </div>
+
+        <!-- Auswertungs-Modal -->
+        <div id="eval-modal" class="modal-overlay">
+            <div class="modal-content" style="text-align: left;">
                 <h3>TRAININGS-AUSWERTUNG</h3>
-                <div class="input-group">
-                    <label>Was war gut?</label>
-                    <textarea id="eval-good" rows="2" placeholder="Z.B. ruhiges Suchverhalten"></textarea>
-                </div>
-                <div class="input-group">
-                    <label>Was war schlecht / Problem?</label>
-                    <textarea id="eval-bad" rows="2" placeholder="Z.B. über Gegenstand 2 gelaufen"></textarea>
-                </div>
-                <button class="tracking-btn" style="width: 100%; margin-top: 10px;" onclick="saveTrack()">
-                    <svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> Speichern
-                </button>
+                <div class="input-group"><label>Was war gut?</label><textarea id="eval-good" rows="2" placeholder="Z.B. ruhiges Suchverhalten"></textarea></div>
+                <div class="input-group"><label>Was war schlecht / Problem?</label><textarea id="eval-bad" rows="2" placeholder="Z.B. über Gegenstand 2 gelaufen"></textarea></div>
+                <button class="tracking-btn" style="width: 100%; margin-top: 10px;" onclick="saveTrack()"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> Speichern</button>
             </div>
         </div>
     </div>
@@ -197,21 +172,11 @@
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" id="nav-start" onclick="switchView('start', 'Start', this)">
-            <svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Start
-        </div>
-        <div class="nav-item" id="nav-map" onclick="switchView('map', 'Neue Fährte', this)">
-            <svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg> Track
-        </div>
-        <div class="nav-item" id="nav-details" onclick="switchView('details', 'Einstellungen', this)">
-            <svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg> Setup
-        </div>
-        <div class="nav-item" id="nav-seminars" onclick="switchView('seminars', 'Fährtenseminare', this)">
-            <svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Seminare
-        </div>
-        <div class="nav-item" id="nav-history" onclick="switchView('history', 'Erledigte Fährten', this)">
-            <svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Historie
-        </div>
+        <div class="nav-item active" id="nav-start" onclick="switchView('start', 'Start', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Start</div>
+        <div class="nav-item" id="nav-map" onclick="switchView('map', 'Neue Fährte', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg> Track</div>
+        <div class="nav-item" id="nav-details" onclick="switchView('details', 'Einstellungen', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg> Setup</div>
+        <div class="nav-item" id="nav-seminars" onclick="switchView('seminars', 'Fährtenseminare', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Seminare</div>
+        <div class="nav-item" id="nav-history" onclick="switchView('history', 'Erledigte Fährten', this)"><svg class="svg-icon-nav" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Historie</div>
     </div>
 
     <script>
@@ -223,7 +188,7 @@
         let polylineLegen, polylineSuchen;
         let weatherInfo = { temp: '--', windSpeed: '--', windDeg: 0 };
         
-        // Hole sofort GPS Position im Hintergrund
+        // Hintergrund GPS
         if(navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
                 lastKnownCoords = [pos.coords.latitude, pos.coords.longitude];
@@ -232,7 +197,6 @@
             }, () => {}, { enableHighAccuracy: true });
         }
 
-        // --- NAVIGATION LOGIK ---
         function switchView(viewName, title, element) {
             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -242,179 +206,10 @@
             document.getElementById('header-title').innerText = title;
             document.getElementById('header-save-btn').style.display = (viewName === 'details') ? 'block' : 'none';
 
-            // KARTEN ERST LADEN WENN SIE SICHTBAR SIND! (Behebt den Fehler)
             if(viewName === 'map') {
                 if(!trackingMapInitialized) { initTrackingMap(); trackingMapInitialized = true; }
                 else { setTimeout(() => map.invalidateSize(), 100); }
             }
             if(viewName === 'seminars') {
                 if(!seminarMapInitialized) { initSeminarMap(); seminarMapInitialized = true; }
-                else { setTimeout(() => seminarMap.invalidateSize(), 100); }
-            }
-            if(viewName === 'history') loadHistory();
-        }
-
-        function switchNav(viewName, title) {
-            switchView(viewName, title, document.getElementById('nav-' + viewName));
-        }
-
-        // --- TRACKING MAP INITIALISIEREN ---
-        function initTrackingMap() {
-            let startCoords = lastKnownCoords || [51.165, 10.451]; // Nimm echten Standort oder Mitte DE
-            map = L.map('map', { zoomControl: false }).setView(startCoords, lastKnownCoords ? 18 : 6);
-            
-            streetLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20 });
-            satelliteLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', { maxZoom: 20 }).addTo(map); 
-            
-            polylineLegen = L.polyline([], { color: '#FF9800', weight: 5, smoothFactor: 1 }).addTo(map);
-            polylineSuchen = L.polyline([], { color: '#ffffff', weight: 5, dashArray: '10, 10', smoothFactor: 1 }).addTo(map);
-            
-            if(lastKnownCoords) {
-                userLocationMarker = L.circleMarker(lastKnownCoords, { radius: 7, fillColor: "#FF9800", color: "#ffffff", weight: 2, opacity: 1, fillOpacity: 1 }).addTo(map);
-            }
-        }
-
-        // --- SEMINAR MAP INITIALISIEREN ---
-        function initSeminarMap() {
-            seminarMap = L.map('seminar-map', { zoomControl: false }).setView([51.165, 10.451], 6);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(seminarMap);
-            
-            const seminarIcon = L.divIcon({
-                className: 'custom-seminar',
-                html: '<svg viewBox="0 0 24 24" fill="#FF9800" stroke="#000" stroke-width="1"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>',
-                iconSize: [36, 36], iconAnchor: [18, 36], popupAnchor: [0, -36]
-            });
-            
-            L.marker([50.1109, 8.6821], {icon: seminarIcon}).addTo(seminarMap).bindPopup("<b>Fährtenhund Seminar (Frankfurt)</b><br><a href='#' style='color:#FF9800;'>Zur Facebook Gruppe</a>");
-            L.marker([51.2277, 6.7735], {icon: seminarIcon}).addTo(seminarMap).bindPopup("<b>Intensiv-Mantrailing (Düsseldorf)</b><br><a href='#' style='color:#FF9800;'>Zur Facebook Gruppe</a>");
-            L.marker([52.5200, 13.4050], {icon: seminarIcon}).addTo(seminarMap).bindPopup("<b>Einsteiger Kurs (Berlin)</b><br><a href='#' style='color:#FF9800;'>Zur Facebook Gruppe</a>");
-        }
-
-        function toggleMapLayer() {
-            if(!map) return;
-            if (currentLayer === 'satellite') {
-                map.removeLayer(satelliteLayer); streetLayer.addTo(map); currentLayer = 'street';
-                document.getElementById('layer-label').innerText = 'Karte';
-            } else {
-                map.removeLayer(streetLayer); satelliteLayer.addTo(map); currentLayer = 'satellite';
-                document.getElementById('layer-label').innerText = 'Satellit';
-            }
-        }
-
-        function fetchWeather(lat, lng) {
-            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m,wind_direction_10m`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.current) {
-                        weatherInfo = { temp: Math.round(data.current.temperature_2m), windSpeed: Math.round(data.current.wind_speed_10m), windDeg: data.current.wind_direction_10m };
-                        document.getElementById('temp-display').innerText = `${weatherInfo.temp}°C`;
-                        document.getElementById('wind-display').innerText = `${weatherInfo.windSpeed} km/h`;
-                        document.getElementById('wind-arrow').style.transform = `rotate(${weatherInfo.windDeg}deg)`;
-                    }
-                }).catch(() => {});
-        }
-
-        let itemMarkers = [], itemsCount = 0;
-        function addCurrentItem() {
-            if (!lastKnownCoords || !map) { alert("Warte auf GPS-Signal..."); return; }
-            itemsCount++; document.getElementById('items-count-display').innerText = itemsCount;
-            const itemIcon = L.divIcon({ className: 'custom-item-marker', html: itemsCount, iconSize: [26, 26], iconAnchor: [13, 13] });
-            const marker = L.marker(lastKnownCoords, { icon: itemIcon }).addTo(map);
-            itemMarkers.push(lastKnownCoords); updateDetailStats();
-        }
-
-        let watchId = null, currentMode = null, positionsLegen = [], positionsSuchen = [], distLegen = 0, distSuchen = 0, startTime = null, timerInterval = null, formattedTime = "00:00";
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3, p1 = lat1 * Math.PI/180, p2 = lat2 * Math.PI/180, dp = (lat2-lat1) * Math.PI/180, dl = (lon2-lon1) * Math.PI/180;
-            const a = Math.sin(dp/2) * Math.sin(dp/2) + Math.cos(p1) * Math.cos(p2) * Math.sin(dl/2) * Math.sin(dl/2); return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        }
-
-        function updateDetailStats() { document.getElementById('detail-stats').value = `${distLegen.toFixed(0)} m / ${formattedTime} (${itemsCount} Gegenstände)`; }
-
-        function toggleTracking(mode) {
-            const btnLegen = document.getElementById('track-btn'), btnSuchen = document.getElementById('search-btn');
-            if (!watchId) {
-                if (!navigator.geolocation) return alert("GPS nicht verfügbar.");
-                currentMode = mode; document.getElementById('stats-overlay').style.display = 'flex';
-                startTime = Date.now(); formattedTime = "00:00";
-
-                if (mode === 'legen') {
-                    btnLegen.innerHTML = `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg> Legen stoppen`; btnLegen.classList.add('active-stop'); btnSuchen.style.display = 'none';
-                    positionsLegen = []; distLegen = 0; itemsCount = 0; document.getElementById('items-count-display').innerText = '0';
-                    polylineLegen.setLatLngs([]); polylineSuchen.setLatLngs([]);
-                    map.eachLayer(l => { if (l instanceof L.Marker && l !== userLocationMarker) map.removeLayer(l); }); itemMarkers = [];
-                } else if (mode === 'suchen') {
-                    btnSuchen.innerHTML = `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg> Suchen stoppen`; btnSuchen.classList.add('active-stop'); btnSuchen.style.backgroundColor = '#d32f2f'; btnSuchen.style.color = '#fff'; btnLegen.style.display = 'none';
-                    positionsSuchen = []; distSuchen = 0; polylineSuchen.setLatLngs([]);
-                }
-
-                timerInterval = setInterval(() => {
-                    const sec = Math.floor((Date.now() - startTime) / 1000), m = String(Math.floor(sec / 60)).padStart(2, '0'), s = String(sec % 60).padStart(2, '0');
-                    formattedTime = `${m}:${s}`; document.getElementById('time-display').innerText = formattedTime;
-                    if(mode === 'legen') updateDetailStats();
-                }, 1000);
-
-                watchId = navigator.geolocation.watchPosition(pos => {
-                    const lat = pos.coords.latitude, lng = pos.coords.longitude; lastKnownCoords = [lat, lng]; 
-                    if(userLocationMarker) userLocationMarker.setLatLng(lastKnownCoords);
-                    if (mode === 'legen') {
-                        if (positionsLegen.length > 0) distLegen += calculateDistance(positionsLegen[positionsLegen.length-1][0], positionsLegen[positionsLegen.length-1][1], lat, lng);
-                        positionsLegen.push(lastKnownCoords); polylineLegen.addLatLng(lastKnownCoords); document.getElementById('dist-display').innerText = `${distLegen.toFixed(0)} m`; updateDetailStats();
-                    } else {
-                        if (positionsSuchen.length > 0) distSuchen += calculateDistance(positionsSuchen[positionsSuchen.length-1][0], positionsSuchen[positionsSuchen.length-1][1], lat, lng);
-                        positionsSuchen.push(lastKnownCoords); polylineSuchen.addLatLng(lastKnownCoords); document.getElementById('dist-display').innerText = `${distSuchen.toFixed(0)} m (Hund)`;
-                    }
-                    map.panTo(lastKnownCoords);
-                }, () => {}, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
-            } else {
-                navigator.geolocation.clearWatch(watchId); clearInterval(timerInterval); watchId = null;
-                btnLegen.innerHTML = `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Fährte legen`; btnLegen.classList.remove('active-stop'); btnLegen.style.display = 'flex';
-                btnSuchen.innerHTML = `<svg class="svg-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> Hund sucht`; btnSuchen.classList.remove('active-stop'); btnSuchen.style.backgroundColor = 'transparent'; btnSuchen.style.color = 'var(--primary)'; btnSuchen.style.display = 'flex';
-                
-                if (currentMode === 'suchen') openEvalModal();
-                currentMode = null;
-            }
-        }
-
-        let liegezeitStart = null, liegezeitInterval = null;
-        function startLiegezeit() {
-            liegezeitStart = Date.now(); if(liegezeitInterval) clearInterval(liegezeitInterval);
-            liegezeitInterval = setInterval(() => {
-                const diff = Math.floor((Date.now() - liegezeitStart) / 1000), h = String(Math.floor(diff / 3600)).padStart(2, '0'), m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0'), s = String(diff % 60).padStart(2, '0');
-                document.getElementById('liegezeit-display').innerText = `${h}:${m}:${s}`;
-            }, 1000);
-        }
-
-        function openEvalModal() { document.getElementById('eval-modal').style.display = 'flex'; }
-        function saveTrack() {
-            document.getElementById('eval-modal').style.display = 'none'; 
-            let history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [];
-            history.unshift({
-                name: document.getElementById('track-name').value, stats: document.getElementById('detail-stats').value, surface: document.getElementById('track-surface').value, weather: `${weatherInfo.temp}°C | Wind: ${weatherInfo.windSpeed} km/h`,
-                date: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }),
-                evalGood: document.getElementById('eval-good').value || "-", evalBad: document.getElementById('eval-bad').value || "-"
-            });
-            localStorage.setItem('faehrtenHistory', JSON.stringify(history)); alert("Fährte gespeichert!");
-            document.getElementById('eval-good').value = ""; document.getElementById('eval-bad').value = "";
-        }
-
-        function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('faehrtenHistory')) || [], list = document.getElementById('history-list');
-            if(history.length === 0) { list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Noch keine Fährten.</p>'; return; }
-            list.innerHTML = ''; 
-            history.forEach(t => {
-                list.innerHTML += `
-                <div class="history-item">
-                    <div class="history-title">${t.name}</div>
-                    <div class="history-details"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ${t.date} | ${t.stats}</div>
-                    <div class="history-details"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.5 11L12 8l-2.5 3H11v4h2v-4h1.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> ${t.surface} | ${t.weather}</div>
-                    <div class="history-eval">
-                        <b style="color:var(--primary);">Gut:</b> ${t.evalGood}<br>
-                        <b style="color:#d32f2f;">Schlecht:</b> ${t.evalBad}
-                    </div>
-                </div>`;
-            });
-        }
-    </script>
-</body>
-</html>
+                else { se
